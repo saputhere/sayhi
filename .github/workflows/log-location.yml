@@ -1,1 +1,25 @@
+name: Log Location Data
 
+on:
+  repository_dispatch:
+    types: [location-logged]
+
+jobs:
+  commit-location:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Append location data to file
+      run: |
+        echo "Latitude: ${{ github.event.client_payload.latitude }}" >> downloadedLocation.txt
+        echo "Longitude: ${{ github.event.client_payload.longitude }}" >> downloadedLocation.txt
+        echo "IP Address: ${{ github.event.client_payload.ipAddress }}" >> downloadedLocation.txt
+        echo "Timestamp: $(date)" >> downloadedLocation.txt
+        git add downloadedLocation.txt
+        git commit -m "Add new location data"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub automatically provides this token
