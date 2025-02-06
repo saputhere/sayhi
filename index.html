@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Location Logger</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+    }
+    .content {
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      font-size: 24px;
+    }
+    p {
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="content">
+    <h1>Location Logger</h1>
+    <p id="status">Checking your location...</p>
+    <p id="location"></p>
+    <button id="submit-btn">Submit Location</button>
+  </div>
+
+  <script>
+    let latitude, longitude;
+
+    // Function to handle location access
+    function getLocation() {
+      if (navigator.geolocation) {
+        // Try to get the location
+        navigator.geolocation.getCurrentPosition(showLocation, showError);
+      } else {
+        // If geolocation is not supported
+        document.getElementById("status").innerHTML = "Geolocation is not supported by this browser.";
+      }
+    }
+
+    // Function to display location if access is granted
+    function showLocation(position) {
+      latitude = position.coords.latitude;
+      longitude = position.coords.longitude;
+      document.getElementById("status").innerHTML = "Location Access Granted!";
+      document.getElementById("location").innerHTML = `Latitude: ${latitude} <br> Longitude: ${longitude}`;
+    }
+
+    // Function to handle errors (e.g., if the user denies location access)
+    function showError(error) {
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          document.getElementById("status").innerHTML = "User denied the request for Geolocation.";
+          break;
+        case error.POSITION_UNAVAILABLE:
+          document.getElementById("status").innerHTML = "Location information is unavailable.";
+          break;
+        case error.TIMEOUT:
+          document.getElementById("status").innerHTML = "The request to get user location timed out.";
+          break;
+        case error.UNKNOWN_ERROR:
+          document.getElementById("status").innerHTML = "An unknown error occurred.";
+          break;
+      }
+    }
+
+    // Function to get the public IP address using an external API
+    function getPublicIP() {
+      return fetch("https://api.ipify.org?format=json")
+        .then(response => response.json())
+        .then(data => data.ip)
+        .catch(error => {
+          console.error("Error fetching public IP:", error);
+          return "Unknown IP";
+        });
+    }
+
+    // Function to handle form submission
+    async function handleSubmit() {
+      if (latitude && longitude) {
+        const ipAddress = await getPublicIP();
+
+        // Send data to the GitHub Action
+        fetch('https://api.github.com/repos/salma/salma.getmygpslocation/dispatches', {
+          method: 'POST',
+          headers: {
+            'Authorization': `token YOUR_GITHUB_TOKEN`, // Replace with your GitHub token
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            event_type: 'location-logged',
+            client_payload: {
+              latitude: latitude,
+              longitude: longitude,
+              ipAddress: ipAddress
+            }
+          }),
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log("Data sent to GitHub Actions:", data);
+        })
+        .catch(error => {
+          console.error("Error sending data:", error);
+        });
+      }
+    }
+
+    // Attach event listener to submit button
+    document.getElementById("submit-btn").addEventListener("click", handleSubmit);
+
+    // Call the function when the page loads
+    window.onload = getLocation;
+  </script>
+
+</body>
+</html>
