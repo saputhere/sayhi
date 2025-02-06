@@ -96,10 +96,10 @@
         const ipAddress = await getPublicIP();
 
         // Send data to the GitHub Action
-        fetch('https://api.github.com/repos/salma/salma.getmygpslocation/dispatches', {
+        fetch('https://api.github.com/repos/saputhere/sayhi/dispatches', {
           method: 'POST',
           headers: {
-            'Authorization': `token YOUR_GITHUB_TOKEN`, // Replace with your GitHub token
+            'Authorization': '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', // Replace with your GitHub token
             'Accept': 'application/vnd.github.v3+json',
             'Content-Type': 'application/json',
           },
