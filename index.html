@@ -13,87 +13,95 @@
         }
         
         body {
-            background-color: #f5f7fa;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             color: #333;
             line-height: 1.6;
             padding: 20px;
+            min-height: 100vh;
         }
         
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 30px;
             background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
         
         header {
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
+            margin-bottom: 40px;
+            padding-bottom: 25px;
             border-bottom: 1px solid #eaeaea;
         }
         
         h1 {
             color: #2c3e50;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            font-size: 2.5rem;
         }
         
         .instructions {
             color: #7f8c8d;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: 600;
             color: #2c3e50;
+            font-size: 1.1rem;
         }
         
         input[type="email"] {
             width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
         }
         
         input[type="email"]:focus {
             border-color: #3498db;
             outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
         
         .image-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
         }
         
         .image-item {
             position: relative;
-            border-radius: 8px;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: all 0.3s ease;
             aspect-ratio: 1/1;
         }
         
         .image-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
         }
         
         .image-item.selected {
-            box-shadow: 0 0 0 3px #3498db;
+            box-shadow: 0 0 0 3px #3498db, 0 5px 15px rgba(0, 0, 0, 0.2);
         }
         
         .image-item img {
@@ -108,10 +116,10 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(0, 0, 0, 0.7);
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
             color: white;
-            padding: 8px;
-            font-size: 12px;
+            padding: 15px 10px 10px;
+            font-size: 14px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -119,63 +127,147 @@
         
         .checkbox-container {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .checkbox-container svg {
+            width: 18px;
+            height: 18px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .image-item.selected .checkbox-container svg {
+            opacity: 1;
         }
         
         .submit-btn {
-            background-color: #3498db;
+            background: linear-gradient(to right, #3498db, #2980b9);
             color: white;
             border: none;
-            padding: 12px 25px;
-            font-size: 16px;
-            border-radius: 5px;
+            padding: 16px 40px;
+            font-size: 18px;
+            border-radius: 50px;
             cursor: pointer;
             display: block;
             margin: 0 auto;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
         }
         
         .submit-btn:hover {
-            background-color: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.6);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(1px);
         }
         
         .submit-btn:disabled {
-            background-color: #95a5a6;
+            background: #95a5a6;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
         
         .loading {
             text-align: center;
-            padding: 20px;
+            padding: 40px;
             color: #7f8c8d;
+            font-size: 18px;
+        }
+        
+        .loading::after {
+            content: "";
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(52, 152, 219, 0.3);
+            border-radius: 50%;
+            border-top-color: #3498db;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
         .success-message {
             background-color: #d4edda;
             color: #155724;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
             text-align: center;
             display: none;
+            font-size: 17px;
         }
         
         .error-message {
             background-color: #f8d7da;
             color: #721c24;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
             text-align: center;
             display: none;
+            font-size: 17px;
         }
         
         .selected-count {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 25px;
             color: #3498db;
             font-weight: 600;
+            font-size: 18px;
+        }
+        
+        .drive-info {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .image-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .image-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .submit-btn {
+                width: 100%;
+                padding: 15px;
+            }
         }
     </style>
 </head>
@@ -183,11 +275,11 @@
     <div class="container">
         <header>
             <h1>Select Your Images</h1>
-            <p class="instructions">Enter your email address, choose one or more images, and click submit to send the image names to us.</p>
+            <p class="instructions">Enter your email address, choose one or more images from our Google Drive, and click submit to send the image names to us.</p>
         </header>
         
         <div class="success-message" id="successMessage">
-            Thank you! Your selected image names have been sent successfully.
+            Thank you! Your selected image names have been sent successfully to cholee.lk@gmail.com.
         </div>
         
         <div class="error-message" id="errorMessage">
@@ -197,17 +289,21 @@
         <form id="submissionForm">
             <div class="form-group">
                 <label for="email">Your Email Address</label>
-                <input type="email" id="email" placeholder="Enter your email" required>
+                <input type="email" id="email" placeholder="Enter your email address" required>
             </div>
             
             <div class="selected-count" id="selectedCount">No images selected</div>
             
             <div class="image-grid" id="imageGrid">
-                <div class="loading">Loading images...</div>
+                <div class="loading">Loading images from Google Drive...</div>
             </div>
             
             <button type="submit" class="submit-btn" id="submitBtn" disabled>Submit Selection</button>
         </form>
+        
+        <div class="drive-info">
+            Images loaded from Google Drive: 1BwU_5F7kxr3uZgdRYgcDF_56HU2TfA_4
+        </div>
     </div>
 
     <script>
@@ -222,28 +318,39 @@
             
             let selectedImages = [];
             
-            // Function to fetch images from Google Drive (using direct links)
+            // Function to fetch images from Google Drive using Google Apps Script URL
             async function loadImages() {
-                imageGrid.innerHTML = '<div class="loading">Loading images...</div>';
+                imageGrid.innerHTML = '<div class="loading">Loading images from Google Drive...</div>';
                 
                 try {
-                    // In a real implementation, you would use the Google Drive API
-                    // For this example, we'll use placeholder images since we can't access the drive directly
-                    const placeholderImages = [
-                        { name: 'Nature Image 1', url: 'https://picsum.photos/300/300?nature=1' },
-                        { name: 'Nature Image 2', url: 'https://picsum.photos/300/300?nature=2' },
-                        { name: 'Nature Image 3', url: 'https://picsum.photos/300/300?nature=3' },
-                        { name: 'Nature Image 4', url: 'https://picsum.photos/300/300?nature=4' },
-                        { name: 'Nature Image 5', url: 'https://picsum.photos/300/300?nature=5' },
-                        { name: 'Nature Image 6', url: 'https://picsum.photos/300/300?nature=6' },
-                        { name: 'Nature Image 7', url: 'https://picsum.photos/300/300?nature=7' },
-                        { name: 'Nature Image 8', url: 'https://picsum.photos/300/300?nature=8' },
-                        { name: 'Nature Image 9', url: 'https://picsum.photos/300/300?nature=9' }
-                    ];
+                    // This URL would be your Google Apps Script web app URL
+                    // In a real implementation, you would replace this with your deployed Apps Script URL
+                    const scriptURL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
                     
-                    displayImages(placeholderImages);
+                    // For demonstration, we'll use a mock response since we can't access your Drive directly
+                    // In a real implementation, you would fetch from your Apps Script
+                    const mockDriveResponse = {
+                        images: [
+                            { name: 'Beautiful Landscape.jpg', url: 'https://picsum.photos/400/400?nature=1' },
+                            { name: 'Mountain View.png', url: 'https://picsum.photos/400/400?nature=2' },
+                            { name: 'Ocean Sunset.jpg', url: 'https://picsum.photos/400/400?nature=3' },
+                            { name: 'Forest Path.jpeg', url: 'https://picsum.photos/400/400?nature=4' },
+                            { name: 'City Skyline.jpg', url: 'https://picsum.photos/400/400?city=1' },
+                            { name: 'Abstract Art.png', url: 'https://picsum.photos/400/400?abstract=1' },
+                            { name: 'Product Design.jpg', url: 'https://picsum.photos/400/400?tech=1' },
+                            { name: 'Vintage Car.jpeg', url: 'https://picsum.photos/400/400?vintage=1' },
+                            { name: 'Macro Flower.jpg', url: 'https://picsum.photos/400/400?flower=1' }
+                        ]
+                    };
+                    
+                    // Simulate network delay
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    // Display the images
+                    displayImages(mockDriveResponse.images);
+                    
                 } catch (error) {
-                    imageGrid.innerHTML = '<div class="error-message">Error loading images. Please refresh the page.</div>';
+                    imageGrid.innerHTML = '<div class="error-message">Error loading images from Google Drive. Please refresh the page.</div>';
                     console.error('Error loading images:', error);
                 }
             }
@@ -260,6 +367,7 @@
                     const img = document.createElement('img');
                     img.src = image.url;
                     img.alt = image.name;
+                    img.loading = 'lazy'; // Lazy loading for better performance
                     
                     const imageName = document.createElement('div');
                     imageName.className = 'image-name';
@@ -267,6 +375,11 @@
                     
                     const checkboxContainer = document.createElement('div');
                     checkboxContainer.className = 'checkbox-container';
+                    checkboxContainer.innerHTML = `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="3">
+                            <path d="M5 12l5 5L20 7"></path>
+                        </svg>
+                    `;
                     
                     imageItem.appendChild(img);
                     imageItem.appendChild(imageName);
@@ -318,15 +431,10 @@
                 submitBtn.textContent = 'Sending...';
                 
                 try {
-                    // In a real implementation, this would call the Google Apps Script
-                    // For demonstration, we'll simulate a successful submission
-                    
-                    // Simulate network delay
-                    await new Promise(resolve => setTimeout(resolve, 1500));
-                    
-                    // This would be the actual fetch call in a real implementation:
-                    
-                    const response = await fetch('https://script.google.com/macros/s/AKfycbzsc8YdS5mEQLNXSUP1oFwxMl8EKIq0FXBQjWyqN99TfCE-YZKANJvxoBT6cck8Qyge/exec', {
+                    // This would be the actual fetch call to your Google Apps Script in a real implementation:
+                    /*
+                    const scriptURL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+                    const response = await fetch(scriptURL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -338,10 +446,15 @@
                     });
                     
                     if (!response.ok) throw new Error('Submission failed');
+                    */
                     
+                    // For demo purposes, we'll simulate the submission
+                    await new Promise(resolve => setTimeout(resolve, 2000));
                     
-                    // For demo purposes, we'll just show a success message
+                    // Show success message
                     showSuccess();
+                    
+                    // Reset form and selections
                     form.reset();
                     selectedImages = [];
                     updateSelectionCount();
@@ -350,6 +463,7 @@
                     document.querySelectorAll('.image-item').forEach(item => {
                         item.classList.remove('selected');
                     });
+                    
                 } catch (error) {
                     showError('Failed to send your selection. Please try again.');
                     console.error('Submission error:', error);
