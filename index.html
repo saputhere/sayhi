@@ -240,6 +240,21 @@
             font-size: 14px;
         }
         
+        .retry-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 16px;
+        }
+        
+        .retry-btn:hover {
+            background: #c0392b;
+        }
+        
         @media (max-width: 768px) {
             .image-grid {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -274,7 +289,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Select Your Imagesukggggggggggg</h1>
+            <h1>Select Your Images</h1>
             <p class="instructions">Enter your email address, choose one or more images from our Google Drive, and click submit to send the image names to us.</p>
         </header>
         
@@ -295,7 +310,7 @@
             <div class="selected-count" id="selectedCount">No images selected</div>
             
             <div class="image-grid" id="imageGrid">
-                <div class="loading">Loading images from Google Drive...</div>
+                <div class="loading" id="loadingIndicator">Loading images from Google Drive...</div>
             </div>
             
             <button type="submit" class="submit-btn" id="submitBtn" disabled>Submit Selection</button>
@@ -315,42 +330,80 @@
             const successMessage = document.getElementById('successMessage');
             const errorMessage = document.getElementById('errorMessage');
             const form = document.getElementById('submissionForm');
+            const loadingIndicator = document.getElementById('loadingIndicator');
             
             let selectedImages = [];
+            let scriptURL = 'https://script.google.com/macros/s/AKfycbwJae9yajTsnU8nI4ryQPq0RMYLRWr0IzWIGlcBB2tBH0q3H83vxIvWQMi94Vr8hr3a/exec'; // This should be your Google Apps Script URL
             
-            // Function to fetch images from Google Drive using Google Apps Script URL
+            // Function to show error message
+            function showError(message, showRetry = false) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+                
+                if (showRetry) {
+                    const retryButton = document.createElement('button');
+                    retryButton.textContent = 'Retry';
+                    retryButton.className = 'retry-btn';
+                    retryButton.addEventListener('click', loadImages);
+                    errorMessage.appendChild(retryButton);
+                }
+                
+                // Hide error message after 8 seconds if no retry
+                if (!showRetry) {
+                    setTimeout(() => {
+                        errorMessage.style.display = 'none';
+                    }, 8000);
+                }
+            }
+            
+            // Function to show success message
+            function showSuccess() {
+                successMessage.style.display = 'block';
+                errorMessage.style.display = 'none';
+                
+                // Hide success message after 5 seconds
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 5000);
+            }
+            
+            // Function to fetch images from Google Drive using Google Apps Script
             async function loadImages() {
-                imageGrid.innerHTML = '<div class="loading">Loading images from Google Drive...</div>';
+                // Clear any previous error
+                errorMessage.style.display = 'none';
+                loadingIndicator.style.display = 'block';
+                imageGrid.innerHTML = '';
+                imageGrid.appendChild(loadingIndicator);
                 
                 try {
-                    // This URL would be your Google Apps Script web app URL
-                    // In a real implementation, you would replace this with your deployed Apps Script URL
-                    const scriptURL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+                    // This is where you would call your Google Apps Script
+                    // For security reasons, we can't directly access Google Drive from browser JavaScript
+                    // You need to deploy a Google Apps Script as a web app that returns the image data
                     
-                    // For demonstration, we'll use a mock response since we can't access your Drive directly
-                    // In a real implementation, you would fetch from your Apps Script
-                    const mockDriveResponse = {
-                        images: [
-                            { name: 'Beautiful Landscape.jpg', url: 'https://picsum.photos/400/400?nature=1' },
-                            { name: 'Mountain View.png', url: 'https://picsum.photos/400/400?nature=2' },
-                            { name: 'Ocean Sunset.jpg', url: 'https://picsum.photos/400/400?nature=3' },
-                            { name: 'Forest Path.jpeg', url: 'https://picsum.photos/400/400?nature=4' },
-                            { name: 'City Skyline.jpg', url: 'https://picsum.photos/400/400?city=1' },
-                            { name: 'Abstract Art.png', url: 'https://picsum.photos/400/400?abstract=1' },
-                            { name: 'Product Design.jpg', url: 'https://picsum.photos/400/400?tech=1' },
-                            { name: 'Vintage Car.jpeg', url: 'https://picsum.photos/400/400?vintage=1' },
-                            { name: 'Macro Flower.jpg', url: 'https://picsum.photos/400/400?flower=1' }
-                        ]
-                    };
+                    // Example of what the fetch would look like:
                     
-                    // Simulate network delay
-                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    const response = await fetch(scriptURL, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
                     
-                    // Display the images
-                    displayImages(mockDriveResponse.images);
+                    if (!response.ok) {
+                        throw new Error(`Failed to load images: ${response.status} ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    displayImages(data.images);
+                    
+                    
+                    // Since we don't have the actual script URL, we'll show an error
+                    throw new Error("Google Apps Script URL not configured. Please update the scriptURL variable with your deployed script URL.");
                     
                 } catch (error) {
-                    imageGrid.innerHTML = '<div class="error-message">Error loading images from Google Drive. Please refresh the page.</div>';
+                    loadingIndicator.style.display = 'none';
+                    showError(`Error: ${error.message}`, true);
                     console.error('Error loading images:', error);
                 }
             }
@@ -358,6 +411,11 @@
             // Function to display images in the grid
             function displayImages(images) {
                 imageGrid.innerHTML = '';
+                
+                if (!images || images.length === 0) {
+                    showError('No images found in the specified Google Drive folder.', true);
+                    return;
+                }
                 
                 images.forEach(image => {
                     const imageItem = document.createElement('div');
@@ -367,7 +425,12 @@
                     const img = document.createElement('img');
                     img.src = image.url;
                     img.alt = image.name;
-                    img.loading = 'lazy'; // Lazy loading for better performance
+                    img.loading = 'lazy';
+                    
+                    // Add error handling for broken images
+                    img.onerror = function() {
+                        this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZSBub3QgZm91bmQ8L3RleHQ+PC9zdmc+';
+                    };
                     
                     const imageName = document.createElement('div');
                     imageName.className = 'image-name';
@@ -433,7 +496,6 @@
                 try {
                     // This would be the actual fetch call to your Google Apps Script in a real implementation:
                     
-                    const scriptURL = 'https://script.google.com/macros/s/AKfycbzOyPtiiMX5m_ZByK8nJ6pFwLIrjsijdPnwSg16tNCivkdvDPYXQnE6YYTYMom47rYj/exec';
                     const response = await fetch(scriptURL, {
                         method: 'POST',
                         headers: {
@@ -445,55 +507,26 @@
                         })
                     });
                     
-                    if (!response.ok) throw new Error('Submission failed');
+                    if (!response.ok) {
+                        throw new Error(`Failed to send: ${response.status} ${response.statusText}`);
+                    }
+                    
+                    const result = await response.json();
+                    if (result.result !== 'success') {
+                        throw new Error(result.message || 'Unknown error occurred');
+                    }
                     
                     
-                    // For demo purposes, we'll simulate the submission
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    
-                    // Show success message
-                    showSuccess();
-                    
-                    // Reset form and selections
-                    form.reset();
-                    selectedImages = [];
-                    updateSelectionCount();
-                    
-                    // Reset image selections
-                    document.querySelectorAll('.image-item').forEach(item => {
-                        item.classList.remove('selected');
-                    });
+                    // For now, we'll simulate an error since we don't have the script URL
+                    throw new Error("Google Apps Script URL not configured. Please update the scriptURL variable.");
                     
                 } catch (error) {
-                    showError('Failed to send your selection. Please try again.');
+                    showError(`Failed to send your selection: ${error.message}`);
                     console.error('Submission error:', error);
                 } finally {
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Submit Selection';
                 }
-            }
-            
-            // Function to show success message
-            function showSuccess() {
-                successMessage.style.display = 'block';
-                errorMessage.style.display = 'none';
-                
-                // Hide success message after 5 seconds
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                }, 5000);
-            }
-            
-            // Function to show error message
-            function showError(message) {
-                errorMessage.textContent = message;
-                errorMessage.style.display = 'block';
-                successMessage.style.display = 'none';
-                
-                // Hide error message after 5 seconds
-                setTimeout(() => {
-                    errorMessage.style.display = 'none';
-                }, 5000);
             }
             
             // Event listeners
@@ -506,6 +539,3 @@
     </script>
 </body>
 </html>
-
-
-
