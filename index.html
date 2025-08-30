@@ -1,37 +1,215 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <base target="_top">
-  <meta charset="UTF-8">
-  <title>Enter Email</title>
-  <style>
-    body {font-family: Arial; display:flex; justify-content:center; align-items:center; min-height:100vh; background:#f0f2f5; margin:0;}
-    .card {background:white; padding:30px; border-radius:12px; box-shadow:0 6px 24px rgba(0,0,0,0.1); width:100%; max-width:400px; text-align:center;}
-    input[type=email], button {width:100%; padding:12px; margin-top:10px; border-radius:6px; border:1px solid #ccc; font-size:16px;}
-    button {background:#2563eb; color:white; border:none; cursor:pointer; font-weight:600;}
-    button:hover {background:#1e40af;}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Sender</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 450px;
+            padding: 35px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .description {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input[type="email"] {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="email"]:focus {
+            border-color: #6e8efb;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(110, 142, 251, 0.2);
+        }
+        
+        button {
+            background: linear-gradient(to right, #6e8efb, #a777e3);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(110, 142, 251, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(110, 142, 251, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #status {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .info {
+            background-color: #cce5ff;
+            color: #004085;
+            display: block;
+        }
+        
+        .recipient {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-  <div class="card">
-    <h2>Enter Your Email</h2>
-    <input type="email" id="email" placeholder="you@example.com" required>
-    <button onclick="submitEmail()">Submit</button>
-    <div id="msg"></div>
-  </div>
+    <div class="container">
+        <h1>Email Sender</h1>
+        <p class="description">Enter your email address and we'll send a "Hello World" message to cholee.lk@gmail.com</p>
+        
+        <form id="emailForm">
+            <div class="form-group">
+                <label for="email">Your Email Address</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+            
+            <button type="submit" id="submitBtn">Send Hello World</button>
+        </form>
+        
+        <div class="recipient">
+            Message will be sent to: cholee.lk@gmail.com
+        </div>
+        
+        <div id="status"></div>
+    </div>
 
-  <script>
-    function submitEmail() {
-      const email = document.getElementById('email').value.trim();
-      if(!email) {
-        document.getElementById('msg').textContent = "Enter a valid email.";
-        return;
-      }
-      document.getElementById('msg').textContent = "Loading images...";
-      google.script.run.withSuccessHandler(function(html) {
-        document.body.innerHTML = html.getContent();
-      }).submitEmail(email);
-    }
-  </script>
+    <script>
+        // Replace with your deployed Google Apps Script Web App URL
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLt_5pN0CoUCpWdMTy3x3hJsMm6QoDhdQKvFSRv8aUGsRGpnnEVAI5fGOe07zjcg_2/exec";
+        
+        document.getElementById('emailForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const emailInput = document.getElementById('email');
+            const submitBtn = document.getElementById('submitBtn');
+            const statusDiv = document.getElementById('status');
+            
+            // Validate email format
+            const email = emailInput.value.trim();
+            if (!isValidEmail(email)) {
+                statusDiv.className = 'error';
+                statusDiv.textContent = 'Please enter a valid email address.';
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+            statusDiv.className = 'info';
+            statusDiv.textContent = 'Sending your message...';
+            
+            // Send data to Google Apps Script
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    timestamp: new Date().toISOString()
+                })
+            })
+            .then(() => {
+                // Since we're using no-cors mode, we can't read the response
+                // So we'll assume it was successful
+                statusDiv.className = 'success';
+                statusDiv.textContent = 'Message sent successfully!';
+                emailInput.value = '';
+            })
+            .catch(error => {
+                statusDiv.className = 'error';
+                statusDiv.textContent = 'Error sending message. Please try again.';
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Hello World';
+            });
+        });
+        
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+    </script>
 </body>
 </html>
