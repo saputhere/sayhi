@@ -1,556 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Selection</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            color: #333;
-            line-height: 1.6;
-            padding: 20px;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 30px;
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 25px;
-            border-bottom: 1px solid #eaeaea;
-        }
-        
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 2.5rem;
-        }
-        
-        .instructions {
-            color: #7f8c8d;
-            margin-bottom: 25px;
-            font-size: 1.1rem;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .form-group {
-            margin-bottom: 25px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: #2c3e50;
-            font-size: 1.1rem;
-        }
-        
-        input[type="email"] {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        
-        input[type="email"]:focus {
-            border-color: #3498db;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-        }
-        
-        .image-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-        
-        .image-item {
-            position: relative;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            aspect-ratio: 1/1;
-        }
-        
-        .image-item:hover {
-            transform: translateY(-5px) scale(1.03);
-            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
-        }
-        
-        .image-item.selected {
-            box-shadow: 0 0 0 3px #3498db, 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .image-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-        
-        .image-name {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-            color: white;
-            padding: 15px 10px 10px;
-            font-size: 14px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .checkbox-container {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: rgba(255, 255, 255, 0.9);
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .checkbox-container svg {
-            width: 18px;
-            height: 18px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .image-item.selected .checkbox-container svg {
-            opacity: 1;
-        }
-        
-        .submit-btn {
-            background: linear-gradient(to right, #3498db, #2980b9);
-            color: white;
-            border: none;
-            padding: 16px 40px;
-            font-size: 18px;
-            border-radius: 50px;
-            cursor: pointer;
-            display: block;
-            margin: 0 auto;
-            transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
-        }
-        
-        .submit-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.6);
-        }
-        
-        .submit-btn:active {
-            transform: translateY(1px);
-        }
-        
-        .submit-btn:disabled {
-            background: #95a5a6;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #7f8c8d;
-            font-size: 18px;
-        }
-        
-        .loading::after {
-            content: "";
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(52, 152, 219, 0.3);
-            border-radius: 50%;
-            border-top-color: #3498db;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 10px;
-            vertical-align: middle;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .success-message {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            text-align: center;
-            display: none;
-            font-size: 17px;
-        }
-        
-        .error-message {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            text-align: center;
-            display: none;
-            font-size: 17px;
-        }
-        
-        .selected-count {
-            text-align: center;
-            margin-bottom: 25px;
-            color: #3498db;
-            font-weight: 600;
-            font-size: 18px;
-        }
-        
-        .drive-info {
-            text-align: center;
-            margin-top: 30px;
-            color: #7f8c8d;
-            font-size: 14px;
-        }
-        
-        .retry-btn {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 15px;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        
-        .retry-btn:hover {
-            background: #2980b9;
-        }
-        
-        .error-details {
-            margin-top: 10px;
-            font-size: 14px;
-            color: #a94442;
-        }
-        
-        @media (max-width: 768px) {
-            .image-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 15px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .container {
-                padding: 20px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .image-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            .submit-btn {
-                width: 100%;
-                padding: 15px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Select Images</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f2f4f8; text-align: center; }
+    .container { max-width: 600px; margin: 50px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    input, button { padding: 10px; margin: 10px 0; width: 80%; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(120px,1fr)); gap: 10px; margin-top: 20px; }
+    .imgBox { border: 2px solid transparent; border-radius: 8px; cursor: pointer; overflow: hidden; }
+    .imgBox.selected { border: 2px solid blue; }
+    .imgBox img { width: 100%; height: 100px; object-fit: cover; display: block; }
+    #msg { margin-top: 15px; font-weight: bold; color: green; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Select Your Images</h1>
-            <p class="instructions">Enter your email address, choose one or more images from our Google Drive, and click submit to send the image names to us.</p>
-        </header>
-        
-        <div class="success-message" id="successMessage">
-            Thank you! Your selected image names have been sent successfully to cholee.lk@gmail.com.
-        </div>
-        
-        <div class="error-message" id="errorMessage">
-            <div id="errorText">There was an error processing your request. Please try again.</div>
-            <button class="retry-btn" id="retryBtn">Retry</button>
-            <div class="error-details" id="errorDetails"></div>
-        </div>
-        
-        <form id="submissionForm">
-            <div class="form-group">
-                <label for="email">Your Email Address</label>
-                <input type="email" id="email" placeholder="Enter your email address" required>
-            </div>
-            
-            <div class="selected-count" id="selectedCount">No images selected</div>
-            
-            <div class="image-grid" id="imageGrid">
-                <div class="loading" id="loadingIndicator">Loading images from Google Drive...</div>
-            </div>
-            
-            <button type="submit" class="submit-btn" id="submitBtn" disabled>Submit Selection</button>
-        </form>
-        
-        <div class="drive-info">
-            Images loaded from Google Drive: 1BwU_5F7kxr3uZgdRYgcDF_56HU2TfA_4
-        </div>
+  <div class="container">
+    <h2>Enter Your Email</h2>
+    <input type="email" id="email" placeholder="you@example.com" required>
+    <button onclick="startSelection()">Submit</button>
+    <div id="imagesSection" style="display:none;">
+      <h3>Select Images</h3>
+      <div class="grid" id="imagesGrid">Loading images...</div>
+      <button onclick="submitSelection()">Send Selection</button>
     </div>
+    <div id="msg"></div>
+  </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const imageGrid = document.getElementById('imageGrid');
-            const submitBtn = document.getElementById('submitBtn');
-            const emailInput = document.getElementById('email');
-            const selectedCount = document.getElementById('selectedCount');
-            const successMessage = document.getElementById('successMessage');
-            const errorMessage = document.getElementById('errorMessage');
-            const errorText = document.getElementById('errorText');
-            const errorDetails = document.getElementById('errorDetails');
-            const retryBtn = document.getElementById('retryBtn');
-            const form = document.getElementById('submissionForm');
-            const loadingIndicator = document.getElementById('loadingIndicator');
-            
-            let selectedImages = [];
-            // Your Google Apps Script URL
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbwuuHb_uYPqEAthjGC1S8yFcC4jrDaBvqdg7CIrzDhtS8s1UYYNy1wAO5_Z77uQN31y/exec';
-            
-            // Function to show error message
-            function showError(message, details = '', showRetry = true) {
-                errorText.textContent = message;
-                errorDetails.textContent = details;
-                errorMessage.style.display = 'block';
-                successMessage.style.display = 'none';
-                
-                if (showRetry) {
-                    retryBtn.style.display = 'block';
-                } else {
-                    retryBtn.style.display = 'none';
-                }
-            }
-            
-            // Function to show success message
-            function showSuccess() {
-                successMessage.style.display = 'block';
-                errorMessage.style.display = 'none';
-            }
-            
-            // Function to hide all messages
-            function hideMessages() {
-                successMessage.style.display = 'none';
-                errorMessage.style.display = 'none';
-            }
-            
-            // Function to fetch images from Google Drive using Google Apps Script
-            async function loadImages() {
-                hideMessages();
-                loadingIndicator.style.display = 'block';
-                imageGrid.innerHTML = '';
-                imageGrid.appendChild(loadingIndicator);
-                
-                try {
-                    // Add a timestamp to avoid caching issues
-                    const urlWithTimestamp = `${scriptURL}?t=${Date.now()}`;
-                    
-                    const response = await fetch(urlWithTimestamp, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        // Important: Google Apps Script requires this mode
-                        mode: 'no-cors'
-                    });
-                    
-                    // Since we're using no-cors mode, we can't read the response directly
-                    // We'll need to use a different approach
-                    console.log('Attempting to fetch images...');
-                    
-                    // For now, let's simulate a successful response with placeholder images
-                    // In a real implementation, you would process the response
-                    await new Promise(resolve => setTimeout(resolve, 1500));
-                    
-                    // Simulated image data - replace with actual response processing
-                    const simulatedImages = [
-                        { name: 'Sample Image 1.jpg', url: 'https://picsum.photos/400/400?nature=1' },
-                        { name: 'Sample Image 2.png', url: 'https://picsum.photos/400/400?nature=2' },
-                        { name: 'Sample Image 3.jpeg', url: 'https://picsum.photos/400/400?nature=3' },
-                        { name: 'Sample Image 4.jpg', url: 'https://picsum.photos/400/400?nature=4' }
-                    ];
-                    
-                    displayImages(simulatedImages);
-                    
-                } catch (error) {
-                    loadingIndicator.style.display = 'none';
-                    showError('Failed to load images from Google Drive', error.message);
-                    console.error('Error loading images:', error);
-                }
-            }
-            
-            // Function to display images in the grid
-            function displayImages(images) {
-                loadingIndicator.style.display = 'none';
-                imageGrid.innerHTML = '';
-                
-                if (!images || images.length === 0) {
-                    showError('No images found in the specified Google Drive folder.', '', true);
-                    return;
-                }
-                
-                images.forEach(image => {
-                    const imageItem = document.createElement('div');
-                    imageItem.className = 'image-item';
-                    imageItem.dataset.name = image.name;
-                    
-                    const img = document.createElement('img');
-                    img.src = image.url;
-                    img.alt = image.name;
-                    img.loading = 'lazy';
-                    
-                    // Add error handling for broken images
-                    img.onerror = function() {
-                        this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZSBub3QgZm91bmQ8L3RleHQ+PC9zdmc+';
-                    };
-                    
-                    const imageName = document.createElement('div');
-                    imageName.className = 'image-name';
-                    imageName.textContent = image.name;
-                    
-                    const checkboxContainer = document.createElement('div');
-                    checkboxContainer.className = 'checkbox-container';
-                    checkboxContainer.innerHTML = `
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="3">
-                            <path d="M5 12l5 5L20 7"></path>
-                        </svg>
-                    `;
-                    
-                    imageItem.appendChild(img);
-                    imageItem.appendChild(imageName);
-                    imageItem.appendChild(checkboxContainer);
-                    
-                    imageItem.addEventListener('click', () => toggleImageSelection(imageItem, image.name));
-                    
-                    imageGrid.appendChild(imageItem);
-                });
-            }
-            
-            // Function to toggle image selection
-            function toggleImageSelection(imageItem, imageName) {
-                imageItem.classList.toggle('selected');
-                
-                if (imageItem.classList.contains('selected')) {
-                    selectedImages.push(imageName);
-                } else {
-                    selectedImages = selectedImages.filter(name => name !== imageName);
-                }
-                
-                updateSelectionCount();
-            }
-            
-            // Function to update the selected images count
-            function updateSelectionCount() {
-                const count = selectedImages.length;
-                selectedCount.textContent = `${count} image${count !== 1 ? 's' : ''} selected`;
-                
-                // Enable submit button only if we have selections and a valid email
-                submitBtn.disabled = count === 0 || !emailInput.checkValidity();
-            }
-            
-            // Function to handle form submission
-            async function handleSubmit(e) {
-                e.preventDefault();
-                
-                if (selectedImages.length === 0) {
-                    showError('Please select at least one image.', '', false);
-                    return;
-                }
-                
-                if (!emailInput.checkValidity()) {
-                    showError('Please enter a valid email address.', '', false);
-                    return;
-                }
-                
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Sending...';
-                
-                try {
-                    // Create form data for submission
-                    const formData = new FormData();
-                    formData.append('email', emailInput.value);
-                    formData.append('images', JSON.stringify(selectedImages));
-                    
-                    const response = await fetch(scriptURL, {
-                        method: 'POST',
-                        body: formData,
-                        mode: 'no-cors'
-                    });
-                    
-                    // Since we're using no-cors mode, we can't read the response
-                    // We'll assume it was successful
-                    console.log('Form submission attempted');
-                    
-                    // Show success message
-                    showSuccess();
-                    
-                    // Reset form and selections
-                    form.reset();
-                    selectedImages = [];
-                    updateSelectionCount();
-                    
-                    // Reset image selections
-                    document.querySelectorAll('.image-item').forEach(item => {
-                        item.classList.remove('selected');
-                    });
-                    
-                } catch (error) {
-                    showError('Failed to send your selection', error.message);
-                    console.error('Submission error:', error);
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Submit Selection';
-                }
-            }
-            
-            // Event listeners
-            emailInput.addEventListener('input', updateSelectionCount);
-            form.addEventListener('submit', handleSubmit);
-            retryBtn.addEventListener('click', loadImages);
-            
-            // Initial load
-            loadImages();
-        });
-    </script>
+  <script>
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbwcXNmQ4N8dvUG8FpR-iwh4SmJlogtq6kbBMfwtk7JKICUKzeWIgOM0Hzb8KlqShYEb/exec";
+    let userEmail = "";
+    let selectedImages = [];
+
+    function startSelection() {
+      userEmail = document.getElementById("email").value.trim();
+      if (!userEmail) {
+        alert("Please enter your email");
+        return;
+      }
+
+      document.getElementById("imagesSection").style.display = "block";
+      fetch(webAppUrl, {
+        method: "POST",
+        body: JSON.stringify({ action: "getImages" })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+          const grid = document.getElementById("imagesGrid");
+          grid.innerHTML = "";
+          data.images.forEach(img => {
+            const box = document.createElement("div");
+            box.className = "imgBox";
+            box.innerHTML = `<img src="${img.url}" alt="${img.name}"><small>${img.name}</small>`;
+            box.onclick = () => toggleSelection(box, img.name);
+            grid.appendChild(box);
+          });
+        }
+      })
+      .catch(err => console.error(err));
+    }
+
+    function toggleSelection(box, name) {
+      if (box.classList.contains("selected")) {
+        box.classList.remove("selected");
+        selectedImages = selectedImages.filter(n => n !== name);
+      } else {
+        box.classList.add("selected");
+        selectedImages.push(name);
+      }
+    }
+
+    function submitSelection() {
+      if (selectedImages.length === 0) {
+        alert("Please select at least one image");
+        return;
+      }
+
+      fetch(webAppUrl, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "sendSelection",
+          email: userEmail,
+          selected: selectedImages
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("msg").textContent = data.message;
+      })
+      .catch(err => console.error(err));
+    }
+  </script>
 </body>
 </html>
