@@ -260,6 +260,16 @@
             font-family: monospace;
         }
         
+        .script-code {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        
         @media (max-width: 768px) {
             .gallery {
                 grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -299,7 +309,6 @@
                 </div>
                 
                 <div id="gallery" class="gallery">
-                    <!-- Images will be loaded here dynamically -->
                     <div class="no-images">
                         <p>No images to display. Enter your email and click "View Drive Images" to load images from your Google Drive.</p>
                     </div>
@@ -307,20 +316,96 @@
             </div>
             
             <div class="instructions">
-                <h3>How to Set Up</h3>
+                <h3>Setup Instructions</h3>
                 <ol>
                     <li>Create a folder named "Website Images" in your Google Drive</li>
                     <li>Upload some images to this folder</li>
-                    <li>Create a Google Apps Script with the provided code</li>
-                    <li>Deploy it as a web app and update the URL in the script</li>
+                    <li>Create a Google Apps Script with the code below</li>
+                    <li>Deploy it as a web app with "Execute as me" and "Anyone" access</li>
+                    <li>Replace the SCRIPT_URL in the JavaScript code with your deployment URL</li>
                 </ol>
+                
+                <h4>Google Apps Script Code:</h4>
+                <pre class="script-code">
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const userEmail = data.email;
+    
+    // Get the Drive folder named "Website Images"
+    var folderIterator = DriveApp.getFoldersByName("Website Images");
+    if (!folderIterator.hasNext()) {
+      return ContentService.createTextOutput(JSON.stringify({
+        result: 'error', 
+        message: 'Folder "Website Images" not found. Please create it and add some images.'
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    var folder = folderIterator.next();
+    var files = folder.getFiles();
+    var images = [];
+    
+    // Process image files
+    while (files.hasNext()) {
+      var file = files.next();
+      var mimeType = file.getMimeType();
+      
+      // Check if file is an image
+      if (mimeType.indexOf('image/') !== -1) {
+        images.push({
+          id: file.getId(),
+          name: file.getName(),
+          url: 'https://drive.google.com/uc?id=' + file.getId(),
+          date: file.getDateCreated().toISOString().split('T')[0],
+          size: Math.round(file.getSize() / 1024) + ' KB'
+        });
+      }
+    }
+    
+    if (images.length === 0) {
+      return ContentService.createTextOutput(JSON.stringify({
+        result: 'error', 
+        message: 'No images found in the "Website Images" folder.'
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // Send confirmation email
+    try {
+      MailApp.sendEmail({
+        to: userEmail,
+        subject: 'Google Drive Image Access',
+        htmlBody: `Hello,<br><br>You recently accessed your Google Drive images from our website. ${images.length} images were retrieved from your "Website Images" folder.`
+      });
+    } catch (emailError) {
+      console.error('Error sending email:', emailError);
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      result: 'success',
+      images: images
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({
+      result: 'error', 
+      message: error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet() {
+  return ContentService.createTextOutput(JSON.stringify({
+    result: 'error', 
+    message: 'Only POST requests are accepted. Please use the web form.'
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+                </pre>
             </div>
         </div>
     </div>
 
     <script>
         // Replace with your deployed Google Apps Script Web App URL
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby6raCuz-jYIqNdpeQH5S5G-UH-uzCL_ZfXgeTB4gwMPqZWScnOT55iYTVqZDV47q_8/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/ABC123xyz/exec";
         
         // DOM elements
         const emailInput = document.getElementById('email');
@@ -351,104 +436,106 @@
             // Clear previous images
             gallery.innerHTML = '';
             
-            // In a real implementation, you would make a request to your Google Apps Script
-            // For this example, we'll simulate loading images with a delay
-            setTimeout(() => {
-                // Simulate receiving image data
-                const mockImages = [
-                    { id: '1', name: 'Mountain Landscape.jpg', url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb', date: '2023-05-15' },
-                    { id: '2', name: 'Ocean Sunset.png', url: 'https://images.unsplash.com/photo-1471922694854-ff1b63b20054', date: '2023-06-22' },
-                    { id: '3', name: 'Forest Path.jpeg', url: 'https://images.unsplash.com/photo-1448375240586-882707db888b', date: '2023-07-10' },
-                    { id: '4', name: 'City Skyline.jpg', url: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df', date: '2023-08-05' },
-                    { id: '5', name: 'Desert Dunes.png', url: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35', date: '2023-08-18' },
-                    { id: '6', name: 'Northern Lights.jpeg', url: 'https://images.unsplash.com/photo-1519817650390-64a93db51149', date: '2023-09-03' }
-                ];
+            // Create the request data
+            const requestData = {
+                email: email
+            };
+            
+            // Make request to Google Apps Script
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === 'success') {
+                    // Display the images
+                    displayImages(data.images);
+                    statusDiv.className = 'success';
+                    statusDiv.textContent = `Successfully loaded ${data.images.length} images from your Drive!`;
+                    imageCount.textContent = `${data.images.length} images`;
+                } else {
+                    statusDiv.className = 'error';
+                    statusDiv.textContent = data.message;
+                }
+            })
+            .catch(error => {
+                statusDiv.className = 'error';
+                statusDiv.textContent = 'Error connecting to Google Drive. Please check your Apps Script deployment.';
+                console.error('Error:', error);
                 
-                // Display the images
-                mockImages.forEach(image => {
-                    const imageCard = document.createElement('div');
-                    imageCard.className = 'image-card';
-                    
-                    imageCard.innerHTML = `
-                        <div class="image-container">
-                            <img src="${image.url}" alt="${image.name}">
-                        </div>
-                        <div class="image-info">
-                            <div class="image-name">${image.name}</div>
-                            <div class="image-date">Added: ${image.date}</div>
-                        </div>
-                    `;
-                    
-                    gallery.appendChild(imageCard);
-                });
-                
+                // For demo purposes, show sample images if real connection fails
+                showSampleImages();
+            })
+            .finally(() => {
                 loadingDiv.classList.add('hidden');
-                statusDiv.className = 'success';
-                statusDiv.textContent = `Successfully loaded ${mockImages.length} images from your Drive!`;
-                imageCount.textContent = `${mockImages.length} images`;
-            }, 2000);
+            });
+        }
+        
+        // Function to display images in the gallery
+        function displayImages(images) {
+            gallery.innerHTML = '';
+            
+            if (images.length === 0) {
+                gallery.innerHTML = '<p>No images found in your Drive folder.</p>';
+                return;
+            }
+            
+            images.forEach(image => {
+                const imageCard = document.createElement('div');
+                imageCard.className = 'image-card';
+                
+                imageCard.innerHTML = `
+                    <div class="image-container">
+                        <img src="${image.url}" alt="${image.name}" onerror="this.src='https://via.placeholder.com/300x200?text=Image+Not+Found'">
+                    </div>
+                    <div class="image-info">
+                        <div class="image-name">${image.name}</div>
+                        <div class="image-date">Added: ${image.date} | ${image.size}</div>
+                    </div>
+                `;
+                
+                gallery.appendChild(imageCard);
+            });
+        }
+        
+        // Fallback function to show sample images if real connection fails
+        function showSampleImages() {
+            const sampleImages = [
+                { 
+                    id: '1', 
+                    name: 'Mountain Landscape.jpg', 
+                    url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb', 
+                    date: '2023-05-15',
+                    size: '1.2 MB'
+                },
+                { 
+                    id: '2', 
+                    name: 'Ocean Sunset.png', 
+                    url: 'https://images.unsplash.com/photo-1471922694854-ff1b63b20054', 
+                    date: '2023-06-22',
+                    size: '980 KB'
+                },
+                { 
+                    id: '3', 
+                    name: 'Forest Path.jpeg', 
+                    url: 'https://images.unsplash.com/photo-1448375240586-882707db888b', 
+                    date: '2023-07-10',
+                    size: '2.1 MB'
+                }
+            ];
+            
+            displayImages(sampleImages);
+            statusDiv.innerHTML = 'Could not connect to your Google Drive. Showing sample images. <br>Please make sure you have deployed the Google Apps Script correctly.';
         }
         
         function isValidEmail(email) {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return re.test(email);
         }
-        
-        // Google Apps Script code for reference
-        const googleAppsScriptCode = `
-function doPost(e) {
-  try {
-    const data = JSON.parse(e.postData.contents);
-    const userEmail = data.email;
-    
-    // Get the Drive folder named "Website Images"
-    var folderIterator = DriveApp.getFoldersByName("Website Images");
-    if (!folderIterator.hasNext()) {
-      return ContentService.createTextOutput(JSON.stringify({
-        result: 'error', 
-        message: 'Folder "Website Images" not found'
-      })).setMimeType(ContentService.MimeType.JSON);
-    }
-    
-    var folder = folderIterator.next();
-    var files = folder.getFiles();
-    var images = [];
-    
-    // Process image files
-    while (files.hasNext()) {
-      var file = files.next();
-      var mimeType = file.getMimeType();
-      
-      // Check if file is an image
-      if (mimeType.indexOf('image/') !== -1) {
-        images.push({
-          id: file.getId(),
-          name: file.getName(),
-          url: 'https://drive.google.com/uc?id=' + file.getId(),
-          date: file.getDateCreated().toISOString().split('T')[0]
-        });
-      }
-    }
-    
-    // Send confirmation email (optional)
-    MailApp.sendEmail({
-      to: userEmail,
-      subject: 'Google Drive Image Access',
-      htmlBody: \`Hello,<br><br>You recently accessed your Google Drive images from our website. \${images.length} images were retrieved from your "Website Images" folder.\`
-    });
-    
-    return ContentService.createTextOutput(JSON.stringify({
-      result: 'success',
-      images: images
-    })).setMimeType(ContentService.MimeType.JSON);
-  } catch (error) {
-    return ContentService.createTextOutput(JSON.stringify({
-      result: 'error', 
-      message: error.toString()
-    })).setMimeType(ContentService.MimeType.JSON);
-  }
-}
-        `;
     </script>
 </body>
 </html>
