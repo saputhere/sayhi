@@ -83,14 +83,25 @@
       }
 
       fetch(scriptURL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "sendSelection",
-          email: userEmail,
-          images: selectedImages
-        })
-      })
+  method: "POST",
+  mode: "cors", // 👈 important
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    action: "sendSelection",
+    email: userEmail,
+    images: selectedImages
+  })
+})
+.then(res => res.json())
+.then(data => {
+  if (data.status === "success") {
+    alert("Your selection has been sent successfully!");
+  } else {
+    alert("Error: " + data.message);
+  }
+})
+.catch(err => alert("Error sending: " + err.message));
+)
       .then(res => res.json())
       .then(data => {
         if (data.status === "success") {
@@ -104,3 +115,4 @@
   </script>
 </body>
 </html>
+
