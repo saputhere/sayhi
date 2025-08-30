@@ -275,6 +275,16 @@
       to { transform: rotate(360deg); }
     }
 
+    /* Footer Styles */
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
     /* Mobile Responsive */
     @media (max-width: 768px) {
       .container {
@@ -303,13 +313,14 @@
 </head>
 <body>
   <div class="container">
-    <h2>Cholee Image Hub</h2>
-    <input type="email" id="email" placeholder="Enter your email address" required>
-    <button onclick="startSelection()">Submit</button>
+    <h2>📸 Cholee Photo Gallery</h2>
+    <p style="color: #666; font-size: 16px; margin-bottom: 25px;">Select your favorite edited photos for printing</p>
+    <input type="email" id="email" placeholder="Enter your email address" required title="We'll send your selection confirmation to this email">
+    <button onclick="startSelection()" title="Start browsing your edited photos">View My Photos</button>
     <div id="imagesSection" style="display:none;">
-      <h3>Select Images</h3>
+      <h3>🖨️ Choose Photos to Print</h3>
       <div class="grid" id="imagesGrid">Loading images...</div>
-      <button onclick="submitSelection()">Send Selection</button>
+      <button onclick="submitSelection()" title="Send your photo selection to Cholee for printing">📤 Order Selected Photos</button>
     </div>
     <div id="msg"></div>
   </div>
@@ -322,7 +333,7 @@
       <div class="modal-info" id="modalInfo"></div>
     </div>
   </div>
-<footer>@cholee</footer>
+
   <script>
     const webAppUrl = "https://script.google.com/macros/s/AKfycbxfQU92tF12CJpxjan_J-8ke723pV4gfr0wCDtv3h3lK5937FeBM7yaXlPw6YDLeLLY/exec";
     let userEmail = "";
@@ -331,38 +342,69 @@
     function startSelection() {
       userEmail = document.getElementById("email").value.trim();
       if (!userEmail) {
-        alert("Please enter your email");
+        alert("Please enter your email address to view your edited photos");
         return;
       }
+      
+      // Validate email format
+      if (!isValidEmail(userEmail)) {
+        alert("Please enter a valid email address");
+        return;
+      }
+      
       document.getElementById("imagesSection").style.display = "block";
-      document.getElementById("imagesGrid").innerHTML = '<div class="loading-text"><span class="spinner"></span>Loading images...</div>';
+      document.getElementById("imagesGrid").innerHTML = '<div class="loading-text"><span class="spinner"></span>Loading your edited photos...</div>';
       
       fetch(webAppUrl, {
         method: "POST",
-        body: JSON.stringify({ action: "getImages" })
+        body: JSON.stringify({ 
+          action: "getImages",
+          email: userEmail 
+        })
       })
       .then(res => res.json())
       .then(data => {
         if (data.status === "success") {
           const grid = document.getElementById("imagesGrid");
           grid.innerHTML = "";
+          
+          if (data.images.length === 0) {
+            grid.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><h3>No photos found</h3><p>We couldn\'t find any edited photos for your email address.<br>Please contact Cholee Photography if you believe this is an error.</p></div>';
+            return;
+          }
+          
           data.images.forEach(img => {
             const box = document.createElement("div");
             box.className = "imgBox";
+            box.setAttribute('title', 'Click to select this photo for printing');
             box.innerHTML = `
               <div class="selection-indicator">✓</div>
               <img src="${img.url}" alt="${img.name}">
               <div class="img-info">
                 <div class="img-name">${img.name}</div>
-                <button class="view-btn" onclick="viewImage('${img.url}', '${img.name}'); event.stopPropagation();">👁️ View</button>
+                <button class="view-btn" onclick="viewImage('${img.url}', '${img.name}'); event.stopPropagation();" title="Preview photo in full size">🔍 Preview</button>
               </div>
             `;
             box.onclick = () => toggleSelection(box, img.name);
             grid.appendChild(box);
           });
+        } else {
+          // Show error message
+          const grid = document.getElementById("imagesGrid");
+          grid.innerHTML = `<div style="text-align: center; padding: 40px; color: #d32f2f;"><h3>⚠️ ${data.message}</h3></div>`;
         }
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        const grid = document.getElementById("imagesGrid");
+        grid.innerHTML = '<div style="text-align: center; padding: 40px; color: #d32f2f;"><h3>Connection Error</h3><p>Unable to load your photos. Please check your internet connection and try again.</p></div>';
+      });
+    }
+
+    // Email validation function
+    function isValidEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
     }
 
     function toggleSelection(box, name) {
@@ -377,7 +419,7 @@
 
     function submitSelection() {
       if (selectedImages.length === 0) {
-        alert("Please select at least one image");
+        alert("Please select at least one photo to print");
         return;
       }
       fetch(webAppUrl, {
@@ -417,7 +459,7 @@
       document.getElementById("email").value = "";
       
       // Reset the grid content
-      document.getElementById("imagesGrid").innerHTML = "Loading images...";
+      document.getElementById("imagesGrid").innerHTML = "Loading your edited photos...";
     }
 
     // Modal functionality
@@ -459,4 +501,3 @@
   </script>
 </body>
 </html>
-
