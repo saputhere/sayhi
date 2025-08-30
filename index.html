@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Sender</title>
+    <title>Google Drive Image Gallery</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -15,90 +16,132 @@
         body {
             background: linear-gradient(135deg, #6e8efb, #a777e3);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
         }
         
         .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
             background-color: white;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            width: 100%;
-            max-width: 450px;
-            padding: 35px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            margin-bottom: 30px;
             text-align: center;
         }
         
         h1 {
             color: #333;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
             font-weight: 600;
         }
         
         .description {
             color: #666;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-size: 16px;
             line-height: 1.5;
         }
         
-        .form-group {
+        .auth-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
             margin-bottom: 20px;
-            text-align: left;
         }
         
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 500;
-        }
-        
-        input[type="email"] {
-            width: 100%;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        input[type="email"]:focus {
-            border-color: #6e8efb;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(110, 142, 251, 0.2);
-        }
-        
-        button {
+        .button {
             background: linear-gradient(to right, #6e8efb, #a777e3);
             color: white;
             border: none;
-            padding: 15px 20px;
+            padding: 12px 25px;
             border-radius: 8px;
-            width: 100%;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 4px 15px rgba(110, 142, 251, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        button:hover {
+        .button:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(110, 142, 251, 0.4);
         }
         
-        button:active {
+        .button:active {
             transform: translateY(0);
         }
         
+        .button-secondary {
+            background: linear-gradient(to right, #5a5f7a, #8a8da3);
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .image-card {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .image-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .image-container {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .image-card:hover img {
+            transform: scale(1.05);
+        }
+        
+        .image-info {
+            padding: 15px;
+        }
+        
+        .image-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .image-date {
+            color: #777;
+            font-size: 14px;
+        }
+        
         #status {
-            margin-top: 20px;
-            padding: 12px;
+            margin: 20px 0;
+            padding: 15px;
             border-radius: 8px;
             font-weight: 500;
+            text-align: center;
             display: none;
         }
         
@@ -120,96 +163,242 @@
             display: block;
         }
         
-        .recipient {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
-            font-size: 14px;
-            color: #666;
+        .loading {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(110, 142, 251, 0.3);
+            border-radius: 50%;
+            border-top-color: #6e8efb;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .instructions {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .instructions h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .instructions code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        @media (max-width: 768px) {
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Email Sender</h1>
-        <p class="description">Enter your email address and we'll send a "Hello World" message to cholee.lk@gmail.com</p>
-        
-        <form id="emailForm">
-            <div class="form-group">
-                <label for="email">Your Email Address</label>
-                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+        <header>
+            <h1>Google Drive Image Gallery</h1>
+            <p class="description">View and manage images from your Google Drive folder</p>
+            
+            <div class="auth-section">
+                <p>You need to authenticate with Google to access your Drive images</p>
+                <button id="authButton" class="button">
+                    <i class="fab fa-google"></i> Sign in with Google
+                </button>
+                <button id="loadImagesButton" class="button button-secondary hidden">
+                    <i class="fas fa-images"></i> Load Images from Drive
+                </button>
             </div>
             
-            <button type="submit" id="submitBtn">Send Hello World</button>
-        </form>
+            <div id="status"></div>
+        </header>
         
-        <div class="recipient">
-            Message will be sent to: cholee.lk@gmail.com
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
         </div>
         
-        <div id="status"></div>
+        <div id="gallery" class="gallery">
+            <!-- Images will be loaded here dynamically -->
+        </div>
+        
+        <div class="instructions">
+            <h2>Setup Instructions</h2>
+            <ol>
+                <li>Create a new Google Apps Script project</li>
+                <li>Replace the default code with the provided Google Apps Script code</li>
+                <li>Deploy the script as a web app with permissions set to "Anyone, even anonymous"</li>
+                <li>Replace the SCRIPT_URL in the JavaScript code with your deployment URL</li>
+                <li>Create a folder in your Google Drive named "Website Images" and add some images to it</li>
+                <li>Click "Sign in with Google" and authorize the application</li>
+            </ol>
+        </div>
     </div>
 
     <script>
         // Replace with your deployed Google Apps Script Web App URL
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLt_5pN0CoUCpWdMTy3x3hJsMm6QoDhdQKvFSRv8aUGsRGpnnEVAI5fGOe07zjcg_2/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
         
-        document.getElementById('emailForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const emailInput = document.getElementById('email');
-            const submitBtn = document.getElementById('submitBtn');
-            const statusDiv = document.getElementById('status');
-            
-            // Validate email format
-            const email = emailInput.value.trim();
-            if (!isValidEmail(email)) {
-                statusDiv.className = 'error';
-                statusDiv.textContent = 'Please enter a valid email address.';
-                return;
-            }
-            
-            // Show loading state
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Sending...';
-            statusDiv.className = 'info';
-            statusDiv.textContent = 'Sending your message...';
-            
-            // Send data to Google Apps Script
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: email,
-                    timestamp: new Date().toISOString()
-                })
-            })
-            .then(() => {
-                // Since we're using no-cors mode, we can't read the response
-                // So we'll assume it was successful
-                statusDiv.className = 'success';
-                statusDiv.textContent = 'Message sent successfully!';
-                emailInput.value = '';
-            })
-            .catch(error => {
-                statusDiv.className = 'error';
-                statusDiv.textContent = 'Error sending message. Please try again.';
-                console.error('Error:', error);
-            })
-            .finally(() => {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Send Hello World';
-            });
-        });
+        // DOM elements
+        const authButton = document.getElementById('authButton');
+        const loadImagesButton = document.getElementById('loadImagesButton');
+        const gallery = document.getElementById('gallery');
+        const statusDiv = document.getElementById('status');
+        const loadingDiv = document.getElementById('loading');
         
-        function isValidEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
+        // Event listeners
+        authButton.addEventListener('click', authenticateWithGoogle);
+        loadImagesButton.addEventListener('click', loadDriveImages);
+        
+        // Check if we already have an access token
+        const accessToken = localStorage.getItem('driveAccessToken');
+        if (accessToken) {
+            showLoadButton();
         }
+        
+        // Function to authenticate with Google
+        function authenticateWithGoogle() {
+            statusDiv.className = 'info';
+            statusDiv.textContent = 'Redirecting to Google authentication...';
+            
+            // In a real implementation, you would redirect to Google OAuth
+            // For this example, we'll simulate a successful authentication
+            setTimeout(() => {
+                const mockToken = 'mock_access_token_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('driveAccessToken', mockToken);
+                
+                statusDiv.className = 'success';
+                statusDiv.textContent = 'Successfully authenticated with Google!';
+                
+                showLoadButton();
+            }, 1500);
+        }
+        
+        // Function to show the load images button
+        function showLoadButton() {
+            authButton.classList.add('hidden');
+            loadImagesButton.classList.remove('hidden');
+        }
+        
+        // Function to load images from Google Drive
+        function loadDriveImages() {
+            loadingDiv.classList.remove('hidden');
+            statusDiv.className = 'info';
+            statusDiv.textContent = 'Loading images from your Google Drive...';
+            
+            // Clear previous images
+            gallery.innerHTML = '';
+            
+            // In a real implementation, you would make a request to your Google Apps Script
+            // For this example, we'll simulate loading images with a delay
+            setTimeout(() => {
+                // Simulate receiving image data
+                const mockImages = [
+                    { id: '1', name: 'Mountain Landscape.jpg', url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb', date: '2023-05-15' },
+                    { id: '2', name: 'Ocean Sunset.png', url: 'https://images.unsplash.com/photo-1471922694854-ff1b63b20054', date: '2023-06-22' },
+                    { id: '3', name: 'Forest Path.jpeg', url: 'https://images.unsplash.com/photo-1448375240586-882707db888b', date: '2023-07-10' },
+                    { id: '4', name: 'City Skyline.jpg', url: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df', date: '2023-08-05' },
+                    { id: '5', name: 'Desert Dunes.png', url: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35', date: '2023-08-18' },
+                    { id: '6', name: 'Northern Lights.jpeg', url: 'https://images.unsplash.com/photo-1519817650390-64a93db51149', date: '2023-09-03' }
+                ];
+                
+                // Display the images
+                mockImages.forEach(image => {
+                    const imageCard = document.createElement('div');
+                    imageCard.className = 'image-card';
+                    
+                    imageCard.innerHTML = `
+                        <div class="image-container">
+                            <img src="${image.url}" alt="${image.name}">
+                        </div>
+                        <div class="image-info">
+                            <div class="image-name">${image.name}</div>
+                            <div class="image-date">Added: ${image.date}</div>
+                        </div>
+                    `;
+                    
+                    gallery.appendChild(imageCard);
+                });
+                
+                loadingDiv.classList.add('hidden');
+                statusDiv.className = 'success';
+                statusDiv.textContent = `Successfully loaded ${mockImages.length} images from your Drive!`;
+            }, 2500);
+        }
+        
+        // Google Apps Script code for reference
+        const googleAppsScriptCode = `
+function doGet() {
+  try {
+    // Get the Drive folder named "Website Images"
+    var folderIterator = DriveApp.getFoldersByName("Website Images");
+    if (!folderIterator.hasNext()) {
+      return ContentService.createTextOutput(JSON.stringify({
+        result: 'error', 
+        message: 'Folder "Website Images" not found'
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    var folder = folderIterator.next();
+    var files = folder.getFiles();
+    var images = [];
+    
+    // Process up to 20 image files
+    var count = 0;
+    while (files.hasNext() && count < 20) {
+      var file = files.next();
+      var mimeType = file.getMimeType();
+      
+      // Check if file is an image
+      if (mimeType.indexOf('image/') !== -1) {
+        images.push({
+          id: file.getId(),
+          name: file.getName(),
+          url: 'https://drive.google.com/uc?id=' + file.getId(),
+          date: file.getDateCreated().toISOString().split('T')[0]
+        });
+        count++;
+      }
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      result: 'success',
+      images: images
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({
+      result: 'error', 
+      message: error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+        `;
     </script>
 </body>
 </html>
