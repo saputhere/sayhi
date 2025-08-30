@@ -392,8 +392,32 @@
       .then(data => {
         document.getElementById("msg").textContent = data.message;
         document.getElementById("msg").style.display = "block";
+        
+        // Reset all selections after successful submission
+        if (data.status === "success") {
+          resetAllSelections();
+        }
       })
       .catch(err => console.error(err));
+    }
+
+    function resetAllSelections() {
+      // Clear the selectedImages array
+      selectedImages = [];
+      
+      // Remove selected class from all image boxes
+      document.querySelectorAll('.imgBox.selected').forEach(box => {
+        box.classList.remove('selected');
+      });
+      
+      // Hide the images section
+      document.getElementById("imagesSection").style.display = "none";
+      
+      // Clear the email input
+      document.getElementById("email").value = "";
+      
+      // Reset the grid content
+      document.getElementById("imagesGrid").innerHTML = "Loading images...";
     }
 
     // Modal functionality
