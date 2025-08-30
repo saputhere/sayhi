@@ -1,168 +1,94 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Location Logger</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Send "Hello World" Email</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background-color: #333; /* Dark gray background */
-      animation: backgroundFade 10s ease-in-out infinite; /* Animation for background */
-    }
-
-    @keyframes backgroundFade {
-      0% { background-color: #333; }
-      50% { background-color: #444; }
-      100% { background-color: #333; }
-    }
-
-    .content {
-      padding: 30px;
-      background-color: #d3d3d3; /* Light gray background for content */
-      border-radius: 8px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-      width: 300px;
-      animation: fadeIn 2s ease-out; /* Fade in animation for the content */
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    h1 {
-      font-size: 24px;
-      color: #333;
-      margin-bottom: 20px;
-    }
-
-    p {
-      font-size: 18px;
-      color: #333;
-    }
-
-    #submit-btn {
-      padding: 10px 20px;
-      background-color: #4CAF50; /* Green button */
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    #submit-btn:hover {
-      background-color: #45a049;
-    }
-
+    body {font-family: Inter, system-ui, -apple-system, sans-serif; display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f7fafc;margin:0}
+    .card{background:white;padding:28px;border-radius:12px;box-shadow:0 6px 24px rgba(11,15,22,0.08);width:100%;max-width:520px}
+    label{display:block;margin-bottom:8px;font-weight:600}
+    input[type=email]{width:100%;padding:12px;border-radius:8px;border:1px solid #e2e8f0}
+    .row{display:flex;gap:8px;margin-top:12px}
+    button{flex:1;padding:10px;border-radius:8px;border:0;cursor:pointer;font-weight:700}
+    button.primary{background:#2563eb;color:white}
+    .note{font-size:13px;color:#475569;margin-top:12px}
+    .success{color:green;margin-top:12px}
+    .error{color:#b91c1c;margin-top:12px}
   </style>
 </head>
 <body>
+  <main class="card">
+    <h2>Send "Hello World" to cholee.lk@gmail.com</h2>
+    <p>Enter your email below and press the button. It will send "Hello World" automatically via Google Apps Script.</p>
 
-  <div class="content">
-    <h1>Welcome!</h1>
-    <p id="status">Checking your location...</p>
-    <button id="submit-btn">Login</button>
-  </div>
+    <label for="email">Your email</label>
+    <input id="email" type="email" placeholder="you@example.com" required>
+
+    <div class="row">
+      <button id="send-gas" class="primary">Send Email</button>
+    </div>
+
+    <div id="msg" class="note"></div>
+
+    <div class="note" style="margin-top:16px">
+      <strong>Setup required:</strong>
+      <ol>
+        <li>Go to <a href="https://script.google.com/" target="_blank">Google Apps Script</a>.</li>
+        <li>Create a new project, paste the script shown below, and deploy as a Web App with access set to "Anyone".</li>
+        <li>Copy the Web App URL and replace <code>YOUR_WEB_APP_URL</code> in the script.</li>
+      </ol>
+      <pre style="background:#f1f5f9;padding:8px;border-radius:6px;overflow:auto;font-size:13px">
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var to = "cholee.lk@gmail.com";
+    var subject = "Message from Website";
+    var body = "Hello World\nFrom: " + data.from;
+    MailApp.sendEmail(to, subject, body);
+    return ContentService.createTextOutput("OK");
+  } catch(err){
+    return ContentService.createTextOutput("Error: " + err.message);
+  }
+}
+      </pre>
+    </div>
+
+  </main>
 
   <script>
-    let latitude, longitude;
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbzlcVVZzBmMVTXwDmK5BTT7QW2TGX7HA2hFpOwKs-IWmsDHDa9fhm7IVXeoIjVCHGU/exec"; // Replace with your deployed Google Apps Script URL
+    const emailInput = document.getElementById('email');
+    const sendBtn = document.getElementById('send-gas');
+    const msg = document.getElementById('msg');
 
-    // Function to handle location access
-    function getLocation() {
-      if (navigator.geolocation) {
-        // Try to get the location
-        navigator.geolocation.getCurrentPosition(showLocation, showError);
-      } else {
-        // If geolocation is not supported
-        document.getElementById("status").innerHTML = "Geolocation is not supported by this browser.";
+    function show(text, cls){ msg.textContent = text; msg.className = cls ? cls : 'note'; }
+
+    sendBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const from = emailInput.value.trim();
+      if(!from || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(from)) { 
+        show('Please enter a valid email address.', 'error'); 
+        return; 
       }
-    }
-
-    // Function to display location if access is granted
-    function showLocation(position) {
-      latitude = position.coords.latitude;
-      longitude = position.coords.longitude;
-      document.getElementById("status").innerHTML = "Location Access Granted!";
-      document.getElementById("location").innerHTML = `Latitude: ${latitude} <br> Longitude: ${longitude}`;
-    }
-
-    // Function to handle errors (e.g., if the user denies location access)
-    function showError(error) {
-      switch (error.code) {
-        case error.PERMISSION_DENIED:
-          document.getElementById("status").innerHTML = "User denied the request for Geolocation.";
-          break;
-        case error.POSITION_UNAVAILABLE:
-          document.getElementById("status").innerHTML = "Location information is unavailable.";
-          break;
-        case error.TIMEOUT:
-          document.getElementById("status").innerHTML = "The request to get user location timed out.";
-          break;
-        case error.UNKNOWN_ERROR:
-          document.getElementById("status").innerHTML = "An unknown error occurred.";
-          break;
-      }
-    }
-
-    // Function to get the public IP address using an external API
-    function getPublicIP() {
-      return fetch("https://api.ipify.org?format=json")
-        .then(response => response.json())
-        .then(data => data.ip)
-        .catch(error => {
-          console.error("Error fetching public IP:", error);
-          return "Unknown IP";
-        });
-    }
-
-    // Function to handle form submission
-    async function handleSubmit() {
-      if (latitude && longitude) {
-        const ipAddress = await getPublicIP();
-
-        // Send data to the GitHub Action
-        fetch('https://api.github.com/repos/saputhere/sayhi/dispatches', {
+      show('Sending...');
+      try {
+        const res = await fetch(webAppUrl, {
           method: 'POST',
-          headers: {
-            'Authorization': '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', // Replace with your GitHub token
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            event_type: 'location-logged',
-            client_payload: {
-              latitude: latitude,
-              longitude: longitude,
-              ipAddress: ipAddress
-            }
-          }),
-        })
-        .then(response => response.json())
-        .then(data => {
-          console.log("Data sent to GitHub Actions:", data);
-        })
-        .catch(error => {
-          console.error("Error sending data:", error);
+          body: JSON.stringify({from}),
+          headers: { 'Content-Type': 'application/json' }
         });
+        const text = await res.text();
+        if(res.ok && text.includes("OK")){
+          show('Email sent successfully!', 'success');
+        } else {
+          show('Failed: ' + text, 'error');
+        }
+      } catch(err){
+        console.error(err);
+        show('Error sending email: ' + err.message, 'error');
       }
-    }
-
-    // Attach event listener to submit button
-    document.getElementById("submit-btn").addEventListener("click", handleSubmit);
-
-    // Call the function when the page loads
-    window.onload = getLocation;
+    });
   </script>
-
 </body>
 </html>
