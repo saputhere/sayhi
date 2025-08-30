@@ -303,13 +303,13 @@
 </head>
 <body>
   <div class="container">
-    <h2>Select Your Images</h2>
+    <h2>🖼️ Select Images</h2>
     <input type="email" id="email" placeholder="Enter your email address" required>
     <button onclick="startSelection()">Submit</button>
     <div id="imagesSection" style="display:none;">
       <h3>Select Images</h3>
       <div class="grid" id="imagesGrid">Loading images...</div>
-      <button id="refreshBtn" onclick="submitSelection()">Send Selection</button>
+      <button onclick="submitSelection()">Send Selection</button>
     </div>
     <div id="msg"></div>
   </div>
@@ -456,13 +456,6 @@
         }
       });
     });
-        document.getElementById("refreshBtn").addEventListener("click", function() {
-            // Reload the current page
-            location.reload();
-        });
   </script>
 </body>
 </html>
-
-
-
