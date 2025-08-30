@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <title>Select Images</title>
+  <style>
+    body {font-family: Arial; background:#f0f2f5; margin:0; padding:20px;}
+    h2 {text-align:center;}
+    .images {display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:15px; margin-top:20px;}
+    .img-card {border:1px solid #ccc; padding:5px; border-radius:8px; text-align:center; background:white;}
+    .img-card input {margin-top:5px;}
+    button {margin-top:20px; padding:12px 20px; background:#2563eb; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; display:block; margin-left:auto; margin-right:auto;}
+    button:hover {background:#1e40af;}
+  </style>
+</head>
+<body>
+  <h2>Select Your Images</h2>
+  <div class="images" id="imagesContainer"></div>
+  <button onclick="submitSelected()">Submit Selected Images</button>
+  <div id="msg"></div>
+
+  <script>
+    const container = document.getElementById('imagesContainer');
+    google.script.run.withSuccessHandler(function(images){
+      images.forEach(img => {
+        const div = document.createElement('div');
+        div.className = 'img-card';
+        div.innerHTML = `<img src="https://drive.google.com/uc?export=view&id=${img.url.match(/[-\\w]{25,}/)}" style="width:100%;height:auto;"><br>
+                        <input type="checkbox" value="${img.name}"> ${img.name}`;
+        container.appendChild(div);
+      });
+    }).getImages();
+
+    function submitSelected() {
+      const selected = Array.from(container.querySelectorAll('input[type=checkbox]:checked'))
+                            .map(cb => cb.value);
+      if(selected.length == 0) {
+        document.getElementById('msg').textContent = "Select at least one image.";
+        return;
+      }
+      document.getElementById('msg').textContent = "Sending email...";
+      google.script.run.withSuccessHandler(function(msg){
+        document.getElementById('msg').textContent = msg;
+      }).submitSelectedImages(selected);
+    }
+  </script>
+</body>
+</html>
