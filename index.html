@@ -2,105 +2,105 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Image Selection</title>
+  <title>Select Images</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
     .hidden { display: none; }
-    .gallery { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
-    .gallery label { display: block; text-align: center; }
-    .gallery img { width: 150px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; }
-    .gallery input[type="checkbox"] { display: none; }
-    .gallery input[type="checkbox"]:checked + img { border-color: #007bff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; }
+    .image-card { border: 2px solid transparent; border-radius: 8px; padding: 5px; cursor: pointer; text-align: center; }
+    .image-card img { width: 100%; border-radius: 6px; }
+    .selected { border-color: green; }
     button { margin-top: 20px; padding: 10px 20px; font-size: 16px; }
   </style>
 </head>
 <body>
-  <h2>Enter your email</h2>
-  <div id="page1">
-    <form id="emailForm">
-      <input type="email" id="userEmail" placeholder="Enter your email" required>
-      <button type="submit">Next</button>
-    </form>
+
+  <!-- Page 1: Enter email -->
+  <div id="emailPage">
+    <h2>Enter your email</h2>
+    <input type="email" id="userEmail" placeholder="your@email.com" required>
+    <button onclick="goToImages()">Submit</button>
   </div>
 
-  <div id="page2" class="hidden">
+  <!-- Page 2: Select images -->
+  <div id="imagesPage" class="hidden">
     <h2>Select Images</h2>
-    <div id="gallery" class="gallery"></div>
-    <button id="sendSelection">Submit Selection</button>
+    <div id="imageGrid" class="grid"></div>
+    <button onclick="sendSelection()">Send Selection</button>
   </div>
 
   <script>
-    // Replace with your Google Apps Script Web App URL
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRkLG_ITV1n9FiY6mzoy4AUXjxNxOwR8ISVHYjsXAoAF2sb1_-ZC5fT4ETaJ2crWCU/exec";
-
+    const scriptURL = "https://script.google.com/macros/s/AKfycbxlm0MY4RrMCdazZAmkGHo4_TXrdi9Q3412DxFIhx4RdW48fciGJSugyTXl5ohqw5K9/exec"; // replace with Apps Script Web App URL
     let userEmail = "";
+    let selectedImages = [];
 
-    // Step 1: Handle email submit
-    document.getElementById("emailForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      userEmail = document.getElementById("userEmail").value;
-
-      // Hide page1, show page2
-      document.getElementById("page1").classList.add("hidden");
-      document.getElementById("page2").classList.remove("hidden");
-
-      // Load images from Apps Script
-      try {
-        const res = await fetch(SCRIPT_URL + "?action=getImages");
-        const data = await res.json();
-        if (data.status === "success") {
-          const gallery = document.getElementById("gallery");
-          gallery.innerHTML = "";
-          data.images.forEach(img => {
-            const label = document.createElement("label");
-            label.innerHTML = `
-              <input type="checkbox" value="${img.id}" data-name="${img.name}" data-url="${img.url}">
-              <img src="${img.url}" alt="${img.name}">
-              <br>${img.name}
-            `;
-            gallery.appendChild(label);
-          });
-        } else {
-          alert("Error: " + data.message);
-        }
-      } catch (err) {
-        alert("Failed to load images: " + err.message);
-      }
-    });
-
-    // Step 2: Send selected images
-    document.getElementById("sendSelection").addEventListener("click", async () => {
-      const selected = Array.from(document.querySelectorAll("input[type=checkbox]:checked")).map(cb => ({
-        id: cb.value,
-        name: cb.dataset.name,
-        url: cb.dataset.url
-      }));
-
-      if (selected.length === 0) {
-        alert("Please select at least one image.");
+    function goToImages() {
+      userEmail = document.getElementById("userEmail").value.trim();
+      if (!userEmail) {
+        alert("Please enter your email");
         return;
       }
 
-      try {
-        const res = await fetch(SCRIPT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "sendSelection",
-            email: userEmail,
-            images: selected
-          })
-        });
-        const data = await res.json();
+      // Hide email page, show image page
+      document.getElementById("emailPage").classList.add("hidden");
+      document.getElementById("imagesPage").classList.remove("hidden");
+
+      // Fetch images
+      fetch(scriptURL + "?action=getImages")
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "success") {
+            const grid = document.getElementById("imageGrid");
+            grid.innerHTML = "";
+            data.images.forEach(img => {
+              const div = document.createElement("div");
+              div.className = "image-card";
+              div.innerHTML = `<img src="${img.url}" alt="${img.name}"><p>${img.name}</p>`;
+              div.onclick = () => toggleSelect(div, img);
+              grid.appendChild(div);
+            });
+          } else {
+            alert("Error loading images: " + data.message);
+          }
+        })
+        .catch(err => alert("Fetch error: " + err.message));
+    }
+
+    function toggleSelect(div, img) {
+      if (div.classList.contains("selected")) {
+        div.classList.remove("selected");
+        selectedImages = selectedImages.filter(i => i.id !== img.id);
+      } else {
+        div.classList.add("selected");
+        selectedImages.push(img);
+      }
+    }
+
+    function sendSelection() {
+      if (selectedImages.length === 0) {
+        alert("Please select at least one image");
+        return;
+      }
+
+      fetch(scriptURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "sendSelection",
+          email: userEmail,
+          images: selectedImages
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
         if (data.status === "success") {
           alert("Your selection has been sent successfully!");
         } else {
           alert("Error: " + data.message);
         }
-      } catch (err) {
-        alert("Error sending selection: " + err.message);
-      }
-    });
+      })
+      .catch(err => alert("Error sending: " + err.message));
+    }
   </script>
 </body>
 </html>
