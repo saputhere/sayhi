@@ -1,97 +1,64 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Send "Hello World" Email</title>
+  <meta charset="UTF-8">
+  <title>Send Hello World</title>
   <style>
-    body {font-family: Inter, system-ui, -apple-system, sans-serif; display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f7fafc;margin:0}
-    .card{background:white;padding:28px;border-radius:12px;box-shadow:0 6px 24px rgba(11,15,22,0.08);width:100%;max-width:520px}
-    label{display:block;margin-bottom:8px;font-weight:600}
-    input[type=email]{width:100%;padding:12px;border-radius:8px;border:1px solid #e2e8f0}
-    .row{display:flex;gap:8px;margin-top:12px}
-    button{flex:1;padding:10px;border-radius:8px;border:0;cursor:pointer;font-weight:700}
-    button.primary{background:#2563eb;color:white}
-    .note{font-size:13px;color:#475569;margin-top:12px}
-    .success{color:green;margin-top:12px}
-    .error{color:#b91c1c;margin-top:12px}
+    body {font-family: Arial, sans-serif; display:flex; justify-content:center; align-items:center; min-height:100vh; background:#f0f2f5; margin:0;}
+    .card {background:white; padding:30px; border-radius:12px; box-shadow:0 6px 24px rgba(0,0,0,0.1); width:100%; max-width:400px; text-align:center;}
+    img {max-width:100%; border-radius:12px; margin-bottom:20px;}
+    input[type=email], button {width:100%; padding:12px; margin-top:10px; border-radius:6px; border:1px solid #ccc; font-size:16px;}
+    button {background:#2563eb; color:white; border:none; cursor:pointer; font-weight:600;}
+    button:hover {background:#1e40af;}
   </style>
 </head>
 <body>
-  <main class="card">
-    <h2>Send "Hello World" to cholee.lk@gmail.com</h2>
-    <p>Enter your email below and press the button. It will send "Hello World" automatically via Google Apps Script.</p>
+  <div class="card">
+    <h2>Send "Hello World"</h2>
 
-    <label for="email">Your email cc</label>
-    <input id="email" type="email" placeholder="you@example.com" required>
+    <!-- Image from Drive -->
+    <img src="https://drive.google.com/uc?export=view&id=YOUR_FILE_ID" alt="Drive Image">
 
-    <div class="row">
-      <button id="send-gas" class="primary">Send Email</button>
-    </div>
-
-    <div id="msg" class="note"></div>
-
-    <div class="note" style="margin-top:16px">
-      <strong>Setup required:</strong>
-      <ol>
-        <li>Go to dddddddddddddddd<a href="https://script.google.com/" target="_blank">Google Apps Script</a>.</li>
-        <li>Create a new project, paste the script shown below, and deploy as a Web App with access set to "Anyone".</li>
-        <li>Copy the Web App URL and replace <code>YOUR_WEB_APP_URL</code> in the script.</li>
-      </ol>
-      <pre style="background:#f1f5f9;padding:8px;border-radius:6px;overflow:auto;font-size:13px">
-function doPost(e) {
-  try {
-    var data = JSON.parse(e.postData.contents);
-    var to = "cholee.lk@gmail.com";
-    var subject = "Message from Website";
-    var body = "Hello World\nFrom: " + data.from;
-    MailApp.sendEmail(to, subject, body);
-    return ContentService.createTextOutput("OK");
-  } catch(err){
-    return ContentService.createTextOutput("Error: " + err.message);
-  }
-}
-      </pre>
-    </div>
-
-  </main>
+    <form id="emailForm">
+      <label for="from">Your Email:</label>
+      <input type="email" id="from" name="from" placeholder="you@example.com" required>
+      <button type="submit">Send Email</button>
+    </form>
+    <div id="msg"></div>
+  </div>
 
   <script>
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbyKxF5a3O53jplQWROHDxnhjVMqTv6eubyKg-oQH0MTseHPIM2lBiAvC_cg7kPcagyg/exec"; // Replace with your deployed Google Apps Script URL
-    const emailInput = document.getElementById('email');
-    const sendBtn = document.getElementById('send-gas');
-    const msg = document.getElementById('msg');
+    const form = document.getElementById('emailForm');
+    const msgDiv = document.getElementById('msg');
 
-    function show(text, cls){ msg.textContent = text; msg.className = cls ? cls : 'note'; }
+    // Replace with your Apps Script Web App URL
+    const webAppUrl = "YOUR_WEB_APP_URL";
 
-    sendBtn.addEventListener('click', async (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const from = emailInput.value.trim();
-      if(!from || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(from)) { 
-        show('Please enter a valid email address.', 'error'); 
-        return; 
+      msgDiv.textContent = "Sending...";
+
+      const from = document.getElementById('from').value.trim();
+      if(!from) {
+        msgDiv.textContent = "Please enter a valid email.";
+        return;
       }
-      show('Sending...');
+
       try {
         const res = await fetch(webAppUrl, {
           method: 'POST',
-          body: JSON.stringify({from}),
-          headers: { 'Content-Type': 'application/json' }
+          mode: 'no-cors', // GitHub Pages → avoid CORS blocking
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: `from=${encodeURIComponent(from)}`
         });
-        const text = await res.text();
-        if(res.ok && text.includes("OK")){
-          show('Email sent successfully!', 'success');
-        } else {
-          show('Failed: ' + text, 'error');
-        }
-      } catch(err){
-        console.error(err);
-        show('Error sending email: ' + err.message, 'error');
+
+        msgDiv.textContent = "Email request sent! Check Gmail.";
+      } catch(err) {
+        msgDiv.textContent = "Error sending email: " + err.message;
       }
     });
   </script>
 </body>
 </html>
-
-
-
