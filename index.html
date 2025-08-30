@@ -2,106 +2,89 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Select Images</title>
+  <title>Image Selection</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .hidden { display: none; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; }
-    .image-card { border: 2px solid transparent; border-radius: 8px; padding: 5px; cursor: pointer; text-align: center; }
-    .image-card img { width: 100%; border-radius: 6px; }
-    .selected { border-color: green; }
+    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+    #gallery { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+    .img-item { margin: 10px; border: 2px solid transparent; cursor: pointer; }
+    .img-item.selected { border: 2px solid #007BFF; }
+    img { width: 150px; height: auto; display: block; }
     button { margin-top: 20px; padding: 10px 20px; font-size: 16px; }
   </style>
 </head>
 <body>
+  <h2>Enter your email dfdf</h2>
+  <input type="email" id="email" placeholder="you@example.com" required>
+  <button onclick="loadImages()">Submit</button>
 
-  <!-- Page 1: Enter email -->
-  <div id="emailPage">
-    <h2>Enter your email</h2>
-    <input type="email" id="userEmail" placeholder="your@email.com" required>
-    <button onclick="goToImages()">Submit</button>
-  </div>
-
-  <!-- Page 2: Select images -->
-  <div id="imagesPage" class="hidden">
-    <h2>Select Images</h2>
-    <div id="imageGrid" class="grid"></div>
-    <button onclick="sendSelection()">Send Selection</button>
-  </div>
+  <div id="gallery"></div>
+  <button id="sendBtn" style="display:none;" onclick="sendSelection()">Send Selection</button>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbw2TSD3drQlWl23RQQeYLKF2bdt1WwPPMCRKt1E9KxtMDeNoeStYSyI2L5NtR13kL4g/exec"; // replace with Apps Script Web App URL
-    let userEmail = "";
-    let selectedImages = [];
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwDwEiwlv3-dey3GKhcmWge-iICPn_UToQRPJ6iUVbeLD1vpGUT4xS3eb7-POiisMsh/exec"; // <-- Replace this
 
-    function goToImages() {
-      userEmail = document.getElementById("userEmail").value.trim();
+    let userEmail = "";
+    let images = [];
+
+    function loadImages() {
+      userEmail = document.getElementById("email").value.trim();
       if (!userEmail) {
-        alert("Please enter your email");
+        alert("Please enter your email first.");
         return;
       }
 
-      // Hide email page, show image page
-      document.getElementById("emailPage").classList.add("hidden");
-      document.getElementById("imagesPage").classList.remove("hidden");
-
-      // Fetch images
-      fetch(scriptURL + "?action=getImages")
+      fetch(`${scriptURL}?action=getImages`)
         .then(res => res.json())
         .then(data => {
           if (data.status === "success") {
-            const grid = document.getElementById("imageGrid");
-            grid.innerHTML = "";
-            data.images.forEach(img => {
-              const div = document.createElement("div");
-              div.className = "image-card";
-              div.innerHTML = `<img src="${img.url}" alt="${img.name}"><p>${img.name}</p>`;
-              div.onclick = () => toggleSelect(div, img);
-              grid.appendChild(div);
-            });
+            images = data.images;
+            renderGallery(images);
           } else {
-            alert("Error loading images: " + data.message);
+            alert("Error: " + data.message);
           }
         })
-        .catch(err => alert("Fetch error: " + err.message));
+        .catch(err => alert("Error loading images: " + err.message));
     }
 
-    function toggleSelect(div, img) {
-      if (div.classList.contains("selected")) {
-        div.classList.remove("selected");
-        selectedImages = selectedImages.filter(i => i.id !== img.id);
-      } else {
-        div.classList.add("selected");
-        selectedImages.push(img);
-      }
+    function renderGallery(imgs) {
+      const gallery = document.getElementById("gallery");
+      gallery.innerHTML = "";
+
+      imgs.forEach((img, index) => {
+        const div = document.createElement("div");
+        div.className = "img-item";
+        div.onclick = () => div.classList.toggle("selected");
+
+        div.innerHTML = `
+          <img src="${img.url}" alt="${img.name}">
+          <p>${img.name}</p>
+        `;
+
+        gallery.appendChild(div);
+      });
+
+      document.getElementById("sendBtn").style.display = "block";
     }
 
     function sendSelection() {
-      if (selectedImages.length === 0) {
-        alert("Please select at least one image");
+      const selected = Array.from(document.querySelectorAll(".img-item.selected"))
+        .map((div, index) => images[index]);
+
+      if (selected.length === 0) {
+        alert("Please select at least one image.");
         return;
       }
 
       fetch(scriptURL, {
-  method: "POST",
-  mode: "cors", // 👈 important
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    action: "sendSelection",
-    email: userEmail,
-    images: selectedImages
-  })
-})
-.then(res => res.json())
-.then(data => {
-  if (data.status === "success") {
-    alert("Your selection has been sent successfully!");
-  } else {
-    alert("Error: " + data.message);
-  }
-})
-.catch(err => alert("Error sending: " + err.message));
-)
+        method: "POST",
+        mode: "cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "sendSelection",
+          email: userEmail,
+          images: selected
+        })
+      })
       .then(res => res.json())
       .then(data => {
         if (data.status === "success") {
@@ -115,5 +98,3 @@
   </script>
 </body>
 </html>
-
-
