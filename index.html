@@ -4,146 +4,103 @@
   <meta charset="UTF-8">
   <title>Image Selection</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
-      text-align: center;
-      padding: 20px;
-    }
-    .card {
-      background: #fff;
-      border-radius: 10px;
-      padding: 20px;
-      max-width: 600px;
-      margin: auto;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    .images {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      justify-content: center;
-      margin-top: 20px;
-    }
-    .image-item {
-      border: 2px solid transparent;
-      border-radius: 10px;
-      overflow: hidden;
-      cursor: pointer;
-      width: 150px;
-      transition: 0.2s;
-    }
-    .image-item img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-      display: block;
-    }
-    .image-item.selected {
-      border-color: #007BFF;
-    }
-    input, button {
-      margin: 10px 0;
-      padding: 10px;
-      width: 80%;
-      max-width: 300px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    button {
-      background: #007BFF;
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    button:hover {
-      background: #0056b3;
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .hidden { display: none; }
+    .gallery { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .gallery label { display: block; text-align: center; }
+    .gallery img { width: 150px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; }
+    .gallery input[type="checkbox"] { display: none; }
+    .gallery input[type="checkbox"]:checked + img { border-color: #007bff; }
+    button { margin-top: 20px; padding: 10px 20px; font-size: 16px; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>Enter Your Emaildd</h2>
-    <input type="email" id="email" placeholder="Enter email">
-    <button onclick="loadImages()">Submit</button>
-    <div id="gallery" class="images"></div>
-    <button id="sendBtn" style="display:none;" onclick="submitSelection()">Send Selected Images x</button>
-    <p id="msg"></p>
+  <h2>Enter your email</h2>
+  <div id="page1">
+    <form id="emailForm">
+      <input type="email" id="userEmail" placeholder="Enter your email" required>
+      <button type="submit">Next</button>
+    </form>
+  </div>
+
+  <div id="page2" class="hidden">
+    <h2>Select Images</h2>
+    <div id="gallery" class="gallery"></div>
+    <button id="sendSelection">Submit Selection</button>
   </div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxK0r0xCiFxRXHyuz5yceiNTEcdn5AxF-9ILWaqi4i48IiCjth6XxrAV4NDr9fxB2Vb/exec";
-    let selected = [];
+    // Replace with your Google Apps Script Web App URL
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRkLG_ITV1n9FiY6mzoy4AUXjxNxOwR8ISVHYjsXAoAF2sb1_-ZC5fT4ETaJ2crWCU/exec";
 
-    function loadImages() {
-      const email = document.getElementById("email").value.trim();
-      if (!email) {
-        document.getElementById("msg").textContent = "Please enter your email.";
+    let userEmail = "";
+
+    // Step 1: Handle email submit
+    document.getElementById("emailForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      userEmail = document.getElementById("userEmail").value;
+
+      // Hide page1, show page2
+      document.getElementById("page1").classList.add("hidden");
+      document.getElementById("page2").classList.remove("hidden");
+
+      // Load images from Apps Script
+      try {
+        const res = await fetch(SCRIPT_URL + "?action=getImages");
+        const data = await res.json();
+        if (data.status === "success") {
+          const gallery = document.getElementById("gallery");
+          gallery.innerHTML = "";
+          data.images.forEach(img => {
+            const label = document.createElement("label");
+            label.innerHTML = `
+              <input type="checkbox" value="${img.id}" data-name="${img.name}" data-url="${img.url}">
+              <img src="${img.url}" alt="${img.name}">
+              <br>${img.name}
+            `;
+            gallery.appendChild(label);
+          });
+        } else {
+          alert("Error: " + data.message);
+        }
+      } catch (err) {
+        alert("Failed to load images: " + err.message);
+      }
+    });
+
+    // Step 2: Send selected images
+    document.getElementById("sendSelection").addEventListener("click", async () => {
+      const selected = Array.from(document.querySelectorAll("input[type=checkbox]:checked")).map(cb => ({
+        id: cb.value,
+        name: cb.dataset.name,
+        url: cb.dataset.url
+      }));
+
+      if (selected.length === 0) {
+        alert("Please select at least one image.");
         return;
       }
-      document.getElementById("msg").textContent = "Loading images...";
 
-      fetch(SCRIPT_URL + "?action=getImages")
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === "success") {
-            const gallery = document.getElementById("gallery");
-            gallery.innerHTML = "";
-            data.images.forEach(img => {
-              const div = document.createElement("div");
-              div.className = "image-item";
-              div.innerHTML = `<img src="${img.url}" alt="${img.name}"><p>${img.name}</p>`;
-              div.onclick = () => toggleSelect(div, img);
-              gallery.appendChild(div);
-            });
-            document.getElementById("sendBtn").style.display = "block";
-            document.getElementById("msg").textContent = "";
-          } else {
-            document.getElementById("msg").textContent = "Failed to load images.";
-          }
-        })
-        .catch(err => {
-          document.getElementById("msg").textContent = "Error: " + err.message;
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "sendSelection",
+            email: userEmail,
+            images: selected
+          })
         });
-    }
-
-    function toggleSelect(div, img) {
-      if (selected.find(x => x.id === img.id)) {
-        selected = selected.filter(x => x.id !== img.id);
-        div.classList.remove("selected");
-      } else {
-        selected.push(img);
-        div.classList.add("selected");
+        const data = await res.json();
+        if (data.status === "success") {
+          alert("Your selection has been sent successfully!");
+        } else {
+          alert("Error: " + data.message);
+        }
+      } catch (err) {
+        alert("Error sending selection: " + err.message);
       }
-    }
-
-    function submitSelection() {
-      const email = document.getElementById("email").value.trim();
-      if (!email || selected.length === 0) {
-        document.getElementById("msg").textContent = "Select at least one image.";
-        return;
-      }
-
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "sendSelection",
-          email: email,
-          images: selected
-        }),
-        headers: { "Content-Type": "application/json" }
-      })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("msg").textContent = data.message;
-      })
-      .catch(err => {
-        document.getElementById("msg").textContent = "Error sending: " + err.message;
-      });
-    }
+    });
   </script>
 </body>
 </html>
-
-
