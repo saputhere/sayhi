@@ -13,7 +13,7 @@
   </style>
 </head>
 <body>
-  <h2>Enter your email dfdf</h2>
+  <h2>Enter your email</h2>
   <input type="email" id="email" placeholder="you@example.com" required>
   <button onclick="loadImages()">Submit</button>
 
@@ -21,7 +21,7 @@
   <button id="sendBtn" style="display:none;" onclick="sendSelection()">Send Selection</button>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbwDwEiwlv3-dey3GKhcmWge-iICPn_UToQRPJ6iUVbeLD1vpGUT4xS3eb7-POiisMsh/exec"; // <-- Replace this
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwFO_KW2uIXs9Sr98Xxsnp8ZILiaQonArC4OeW9i5L6O9WfPdkH7nRgQ22CXmD5POGi/exec"; // <-- Replace with your deployed web app URL
 
     let userEmail = "";
     let images = [];
@@ -77,7 +77,6 @@
 
       fetch(scriptURL, {
         method: "POST",
-        mode: "cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "sendSelection",
