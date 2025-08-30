@@ -241,18 +241,25 @@
         }
         
         .retry-btn {
-            background: #e74c3c;
+            background: #3498db;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 25px;
             border-radius: 5px;
             cursor: pointer;
             margin-top: 15px;
             font-size: 16px;
+            transition: background-color 0.3s;
         }
         
         .retry-btn:hover {
-            background: #c0392b;
+            background: #2980b9;
+        }
+        
+        .error-details {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #a94442;
         }
         
         @media (max-width: 768px) {
@@ -298,7 +305,9 @@
         </div>
         
         <div class="error-message" id="errorMessage">
-            There was an error processing your request. Please try again.
+            <div id="errorText">There was an error processing your request. Please try again.</div>
+            <button class="retry-btn" id="retryBtn">Retry</button>
+            <div class="error-details" id="errorDetails"></div>
         </div>
         
         <form id="submissionForm">
@@ -329,31 +338,27 @@
             const selectedCount = document.getElementById('selectedCount');
             const successMessage = document.getElementById('successMessage');
             const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            const errorDetails = document.getElementById('errorDetails');
+            const retryBtn = document.getElementById('retryBtn');
             const form = document.getElementById('submissionForm');
             const loadingIndicator = document.getElementById('loadingIndicator');
             
             let selectedImages = [];
-            let scriptURL = 'https://script.google.com/macros/s/AKfycbwJae9yajTsnU8nI4ryQPq0RMYLRWr0IzWIGlcBB2tBH0q3H83vxIvWQMi94Vr8hr3a/exec'; // This should be your Google Apps Script URL
+            // Replace this with your actual Google Apps Script URL after deployment
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxJzhy3rzYJ_w4rW_rak3orVfUJh8DWNt3PwoK4oXqq_RqNAHIyx4SO-IIhYrkJwNJ1/exec';
             
             // Function to show error message
-            function showError(message, showRetry = false) {
-                errorMessage.textContent = message;
+            function showError(message, details = '', showRetry = true) {
+                errorText.textContent = message;
+                errorDetails.textContent = details;
                 errorMessage.style.display = 'block';
                 successMessage.style.display = 'none';
                 
                 if (showRetry) {
-                    const retryButton = document.createElement('button');
-                    retryButton.textContent = 'Retry';
-                    retryButton.className = 'retry-btn';
-                    retryButton.addEventListener('click', loadImages);
-                    errorMessage.appendChild(retryButton);
-                }
-                
-                // Hide error message after 8 seconds if no retry
-                if (!showRetry) {
-                    setTimeout(() => {
-                        errorMessage.style.display = 'none';
-                    }, 8000);
+                    retryBtn.style.display = 'block';
+                } else {
+                    retryBtn.style.display = 'none';
                 }
             }
             
@@ -361,27 +366,26 @@
             function showSuccess() {
                 successMessage.style.display = 'block';
                 errorMessage.style.display = 'none';
-                
-                // Hide success message after 5 seconds
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                }, 5000);
+            }
+            
+            // Function to hide all messages
+            function hideMessages() {
+                successMessage.style.display = 'none';
+                errorMessage.style.display = 'none';
             }
             
             // Function to fetch images from Google Drive using Google Apps Script
             async function loadImages() {
-                // Clear any previous error
-                errorMessage.style.display = 'none';
+                hideMessages();
                 loadingIndicator.style.display = 'block';
                 imageGrid.innerHTML = '';
                 imageGrid.appendChild(loadingIndicator);
                 
                 try {
-                    // This is where you would call your Google Apps Script
-                    // For security reasons, we can't directly access Google Drive from browser JavaScript
-                    // You need to deploy a Google Apps Script as a web app that returns the image data
-                    
-                    // Example of what the fetch would look like:
+                    // Check if script URL is configured
+                    if (!scriptURL || scriptURL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+                        throw new Error('Google Apps Script URL not configured. Please update the scriptURL variable with your deployed script URL.');
+                    }
                     
                     const response = await fetch(scriptURL, {
                         method: 'GET',
@@ -391,31 +395,32 @@
                     });
                     
                     if (!response.ok) {
-                        throw new Error(`Failed to load images: ${response.status} ${response.statusText}`);
+                        throw new Error(`Server returned ${response.status} ${response.statusText}`);
                     }
                     
                     const data = await response.json();
+                    
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
+                    if (!data.images || data.images.length === 0) {
+                        throw new Error('No images found in the specified Google Drive folder.');
+                    }
+                    
                     displayImages(data.images);
-                    
-                    
-                    // Since we don't have the actual script URL, we'll show an error
-                    throw new Error("Google Apps Script URL not configured. Please update the scriptURL variable with your deployed script URL.");
                     
                 } catch (error) {
                     loadingIndicator.style.display = 'none';
-                    showError(`Error: ${error.message}`, true);
+                    showError('Failed to load images from Google Drive', error.message);
                     console.error('Error loading images:', error);
                 }
             }
             
             // Function to display images in the grid
             function displayImages(images) {
+                loadingIndicator.style.display = 'none';
                 imageGrid.innerHTML = '';
-                
-                if (!images || images.length === 0) {
-                    showError('No images found in the specified Google Drive folder.', true);
-                    return;
-                }
                 
                 images.forEach(image => {
                     const imageItem = document.createElement('div');
@@ -481,12 +486,12 @@
                 e.preventDefault();
                 
                 if (selectedImages.length === 0) {
-                    showError('Please select at least one image.');
+                    showError('Please select at least one image.', '', false);
                     return;
                 }
                 
                 if (!emailInput.checkValidity()) {
-                    showError('Please enter a valid email address.');
+                    showError('Please enter a valid email address.', '', false);
                     return;
                 }
                 
@@ -494,8 +499,6 @@
                 submitBtn.textContent = 'Sending...';
                 
                 try {
-                    // This would be the actual fetch call to your Google Apps Script in a real implementation:
-                    
                     const response = await fetch(scriptURL, {
                         method: 'POST',
                         headers: {
@@ -508,20 +511,30 @@
                     });
                     
                     if (!response.ok) {
-                        throw new Error(`Failed to send: ${response.status} ${response.statusText}`);
+                        throw new Error(`Server returned ${response.status} ${response.statusText}`);
                     }
                     
                     const result = await response.json();
+                    
                     if (result.result !== 'success') {
                         throw new Error(result.message || 'Unknown error occurred');
                     }
                     
+                    // Show success message
+                    showSuccess();
                     
-                    // For now, we'll simulate an error since we don't have the script URL
-                    throw new Error("Google Apps Script URL not configured. Please update the scriptURL variable.");
+                    // Reset form and selections
+                    form.reset();
+                    selectedImages = [];
+                    updateSelectionCount();
+                    
+                    // Reset image selections
+                    document.querySelectorAll('.image-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
                     
                 } catch (error) {
-                    showError(`Failed to send your selection: ${error.message}`);
+                    showError('Failed to send your selection', error.message);
                     console.error('Submission error:', error);
                 } finally {
                     submitBtn.disabled = false;
@@ -532,6 +545,7 @@
             // Event listeners
             emailInput.addEventListener('input', updateSelectionCount);
             form.addEventListener('submit', handleSubmit);
+            retryBtn.addEventListener('click', loadImages);
             
             // Initial load
             loadImages();
