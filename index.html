@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Drive Image Gallery</title>
+    <title>Google Drive Image Viewer</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -17,47 +17,81 @@
             background: linear-gradient(135deg, #6e8efb, #a777e3);
             min-height: 100vh;
             padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 1000px;
+            overflow: hidden;
         }
         
         header {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
             padding: 25px;
-            margin-bottom: 30px;
             text-align: center;
+            background: linear-gradient(to right, #6e8efb, #a777e3);
+            color: white;
         }
         
         h1 {
-            color: #333;
-            margin-bottom: 10px;
             font-weight: 600;
+            margin-bottom: 10px;
         }
         
         .description {
-            color: #666;
-            margin-bottom: 20px;
             font-size: 16px;
-            line-height: 1.5;
+            opacity: 0.9;
         }
         
-        .auth-section {
+        .content {
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-section {
             background-color: #f8f9fa;
             padding: 20px;
             border-radius: 10px;
-            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input[type="email"] {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="email"]:focus {
+            border-color: #6e8efb;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(110, 142, 251, 0.2);
         }
         
         .button {
             background: linear-gradient(to right, #6e8efb, #a777e3);
             color: white;
             border: none;
-            padding: 12px 25px;
+            padding: 15px 25px;
             border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
@@ -78,22 +112,33 @@
             transform: translateY(0);
         }
         
-        .button-secondary {
-            background: linear-gradient(to right, #5a5f7a, #8a8da3);
+        .gallery-section {
+            margin-top: 20px;
+        }
+        
+        .gallery-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .gallery-title {
+            font-size: 20px;
+            color: #333;
         }
         
         .gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
-            margin-top: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
         }
         
         .image-card {
             background-color: white;
-            border-radius: 12px;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s;
         }
         
@@ -103,7 +148,7 @@
         
         .image-container {
             width: 100%;
-            height: 200px;
+            height: 180px;
             overflow: hidden;
         }
         
@@ -188,12 +233,13 @@
         
         .instructions {
             background-color: white;
-            border-radius: 12px;
-            padding: 25px;
+            border-radius: 10px;
+            padding: 20px;
             margin-top: 30px;
+            border-left: 4px solid #6e8efb;
         }
         
-        .instructions h2 {
+        .instructions h3 {
             color: #333;
             margin-bottom: 15px;
         }
@@ -216,7 +262,7 @@
         
         @media (max-width: 768px) {
             .gallery {
-                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
             }
         }
     </style>
@@ -224,90 +270,80 @@
 <body>
     <div class="container">
         <header>
-            <h1>Google Drive Image Gallery</h1>
-            <p class="description">View and manage images from your Google Drive folder</p>
-            
-            <div class="auth-section">
-                <p>You need to authenticate with Google to access your Drive images</p>
-                <button id="authButton" class="button">
-                    <i class="fab fa-google"></i> Sign in with Google
-                </button>
-                <button id="loadImagesButton" class="button button-secondary hidden">
-                    <i class="fas fa-images"></i> Load Images from Drive
+            <h1>Google Drive Image Viewer</h1>
+            <p class="description">Enter your email to view images from your Google Drive</p>
+        </header>
+        
+        <div class="content">
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="email">Your Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+                
+                <button id="submitBtn" class="button">
+                    <i class="fas fa-images"></i> View Drive Images
                 </button>
             </div>
             
             <div id="status"></div>
-        </header>
-        
-        <div id="loading" class="loading hidden">
-            <div class="spinner"></div>
-        </div>
-        
-        <div id="gallery" class="gallery">
-            <!-- Images will be loaded here dynamically -->
-        </div>
-        
-        <div class="instructions">
-            <h2>Setup Instructions</h2>
-            <ol>
-                <li>Create a new Google Apps Script project</li>
-                <li>Replace the default code with the provided Google Apps Script code</li>
-                <li>Deploy the script as a web app with permissions set to "Anyone, even anonymous"</li>
-                <li>Replace the SCRIPT_URL in the JavaScript code with your deployment URL</li>
-                <li>Create a folder in your Google Drive named "Website Images" and add some images to it</li>
-                <li>Click "Sign in with Google" and authorize the application</li>
-            </ol>
+            
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+            </div>
+            
+            <div class="gallery-section">
+                <div class="gallery-header">
+                    <h2 class="gallery-title">Your Drive Images</h2>
+                    <span id="imageCount">0 images</span>
+                </div>
+                
+                <div id="gallery" class="gallery">
+                    <!-- Images will be loaded here dynamically -->
+                    <div class="no-images">
+                        <p>No images to display. Enter your email and click "View Drive Images" to load images from your Google Drive.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="instructions">
+                <h3>How to Set Up</h3>
+                <ol>
+                    <li>Create a folder named "Website Images" in your Google Drive</li>
+                    <li>Upload some images to this folder</li>
+                    <li>Create a Google Apps Script with the provided code</li>
+                    <li>Deploy it as a web app and update the URL in the script</li>
+                </ol>
+            </div>
         </div>
     </div>
 
     <script>
         // Replace with your deployed Google Apps Script Web App URL
-        const SCRIPT_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby6raCuz-jYIqNdpeQH5S5G-UH-uzCL_ZfXgeTB4gwMPqZWScnOT55iYTVqZDV47q_8/exec";
         
         // DOM elements
-        const authButton = document.getElementById('authButton');
-        const loadImagesButton = document.getElementById('loadImagesButton');
+        const emailInput = document.getElementById('email');
+        const submitBtn = document.getElementById('submitBtn');
         const gallery = document.getElementById('gallery');
         const statusDiv = document.getElementById('status');
         const loadingDiv = document.getElementById('loading');
+        const imageCount = document.getElementById('imageCount');
         
         // Event listeners
-        authButton.addEventListener('click', authenticateWithGoogle);
-        loadImagesButton.addEventListener('click', loadDriveImages);
-        
-        // Check if we already have an access token
-        const accessToken = localStorage.getItem('driveAccessToken');
-        if (accessToken) {
-            showLoadButton();
-        }
-        
-        // Function to authenticate with Google
-        function authenticateWithGoogle() {
-            statusDiv.className = 'info';
-            statusDiv.textContent = 'Redirecting to Google authentication...';
-            
-            // In a real implementation, you would redirect to Google OAuth
-            // For this example, we'll simulate a successful authentication
-            setTimeout(() => {
-                const mockToken = 'mock_access_token_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('driveAccessToken', mockToken);
-                
-                statusDiv.className = 'success';
-                statusDiv.textContent = 'Successfully authenticated with Google!';
-                
-                showLoadButton();
-            }, 1500);
-        }
-        
-        // Function to show the load images button
-        function showLoadButton() {
-            authButton.classList.add('hidden');
-            loadImagesButton.classList.remove('hidden');
-        }
+        submitBtn.addEventListener('click', loadDriveImages);
         
         // Function to load images from Google Drive
         function loadDriveImages() {
+            const email = emailInput.value.trim();
+            
+            // Validate email format
+            if (!isValidEmail(email)) {
+                statusDiv.className = 'error';
+                statusDiv.textContent = 'Please enter a valid email address.';
+                return;
+            }
+            
             loadingDiv.classList.remove('hidden');
             statusDiv.className = 'info';
             statusDiv.textContent = 'Loading images from your Google Drive...';
@@ -349,13 +385,22 @@
                 loadingDiv.classList.add('hidden');
                 statusDiv.className = 'success';
                 statusDiv.textContent = `Successfully loaded ${mockImages.length} images from your Drive!`;
-            }, 2500);
+                imageCount.textContent = `${mockImages.length} images`;
+            }, 2000);
+        }
+        
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
         }
         
         // Google Apps Script code for reference
         const googleAppsScriptCode = `
-function doGet() {
+function doPost(e) {
   try {
+    const data = JSON.parse(e.postData.contents);
+    const userEmail = data.email;
+    
     // Get the Drive folder named "Website Images"
     var folderIterator = DriveApp.getFoldersByName("Website Images");
     if (!folderIterator.hasNext()) {
@@ -369,9 +414,8 @@ function doGet() {
     var files = folder.getFiles();
     var images = [];
     
-    // Process up to 20 image files
-    var count = 0;
-    while (files.hasNext() && count < 20) {
+    // Process image files
+    while (files.hasNext()) {
       var file = files.next();
       var mimeType = file.getMimeType();
       
@@ -383,9 +427,15 @@ function doGet() {
           url: 'https://drive.google.com/uc?id=' + file.getId(),
           date: file.getDateCreated().toISOString().split('T')[0]
         });
-        count++;
       }
     }
+    
+    // Send confirmation email (optional)
+    MailApp.sendEmail({
+      to: userEmail,
+      subject: 'Google Drive Image Access',
+      htmlBody: \`Hello,<br><br>You recently accessed your Google Drive images from our website. \${images.length} images were retrieved from your "Website Images" folder.\`
+    });
     
     return ContentService.createTextOutput(JSON.stringify({
       result: 'success',
