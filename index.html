@@ -432,8 +432,8 @@
                 
                 try {
                     // This would be the actual fetch call to your Google Apps Script in a real implementation:
-                    /*
-                    const scriptURL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+                    
+                    const scriptURL = 'https://script.google.com/macros/s/AKfycbyEGwOCZ4AtzS_FM9ippNNTjBQXNhhSJz0rfKYHIGPu_wuNsmOtl0eJLX0hPDEmD5It/exec';
                     const response = await fetch(scriptURL, {
                         method: 'POST',
                         headers: {
@@ -446,7 +446,7 @@
                     });
                     
                     if (!response.ok) throw new Error('Submission failed');
-                    */
+                    
                     
                     // For demo purposes, we'll simulate the submission
                     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -506,3 +506,4 @@
     </script>
 </body>
 </html>
+
