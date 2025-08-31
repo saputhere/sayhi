@@ -194,6 +194,27 @@
       display: none;
     }
 
+    /* Order Info Styles */
+    .order-info {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: rgba(102, 126, 234, 0.1);
+      border-radius: 10px;
+      border: 2px solid #667eea;
+      display: none;
+    }
+
+    .order-info p {
+      color: #333;
+      font-weight: 600;
+      font-size: 16px;
+      margin: 0;
+    }
+
+    .order-info span {
+      color: #667eea;
+    }
+
     /* Modal Styles */
     .modal {
       display: none;
@@ -356,6 +377,9 @@
     <button onclick="startSelection()" title="Start browsing your edited photos">View My Photos</button>
     <div id="imagesSection" style="display:none;">
       <h3>🖨️ Choose Photos to Print</h3>
+      <div id="orderInfo" class="order-info">
+        <p>Order Number: <span id="orderNumberDisplay"></span></p>
+      </div>
       <div class="grid" id="imagesGrid">Loading images...</div>
       <button onclick="submitSelection()" title="Send your photo selection to Cholee for printing">Order Selected Photos</button>
       <div id="msg"></div>
@@ -368,6 +392,7 @@
       <h3>Cholee Studio</h3>
       <p>Enhancing your memories with professional editing and printing</p>
       <p>Creating beautiful moments that last a lifetime</p>
+      <p>Lomo Cards | Polaroid Style | Photo Printing | Sticker Printing | Envelop Printing & personalized creations</p>
       <div class="copyright">
         <p>© 2025 Cholee Studio - Creative Design & Printing. All rights reserved.</p>
       </div>
@@ -384,9 +409,10 @@
   </div>
 
   <script>
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbwtNnrq0HKJe69Z_IKv-ne0_NGQlLXaH5iZaT69JodCirJR1VRwI1lRsqD3nVChtvIx/exec";
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbxK8qIJNqeuhaEqv6FabI3jt-6CxXJTH7QHuzXtvqVIrzfiHEi98c83XW_YJqtwri8/exec";
     let userEmail = "";
     let selectedImages = [];
+    let orderNumber = "";
 
     function startSelection() {
       userEmail = document.getElementById("email").value.trim();
@@ -414,11 +440,16 @@
       .then(res => res.json())
       .then(data => {
         if (data.status === "success") {
+          // Display order number
+          orderNumber = data.orderNumber;
+          document.getElementById("orderNumberDisplay").textContent = orderNumber;
+          document.getElementById("orderInfo").style.display = "block";
+          
           const grid = document.getElementById("imagesGrid");
           grid.innerHTML = "";
           
           if (data.images.length === 0) {
-            grid.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><h3>No photos found</h3><p>We couldn\'t find any edited photos for your email address.<br>Please contact Cholee Photography if you believe this is an error.</p></div>';
+            grid.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><h3>No photos found</h3><p>We couldn\'t find any edited photos for your email address.<br>Please contact Cholee Studio if you believe this is an error.</p></div>';
             return;
           }
           
@@ -476,7 +507,8 @@
         body: JSON.stringify({
           action: "sendSelection",
           email: userEmail,
-          selected: selectedImages
+          selected: selectedImages,
+          orderNumber: orderNumber
         })
       })
       .then(res => res.json())
@@ -503,6 +535,9 @@
       
       // Hide the images section
       document.getElementById("imagesSection").style.display = "none";
+      
+      // Hide order info
+      document.getElementById("orderInfo").style.display = "none";
       
       // Clear the email input
       document.getElementById("email").value = "";
