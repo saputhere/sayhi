@@ -49,8 +49,8 @@
     }
 
     input:focus {
-      border-color: #667eea;
-      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      border-color: #ff6b35;
+      box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
     }
 
     button { 
@@ -88,6 +88,51 @@
       font-weight: 400;
     }
 
+    .content-wrapper {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .selected-panel {
+      flex: 0 0 250px;
+      background: rgba(255, 107, 53, 0.1);
+      border: 2px solid #ff6b35;
+      border-radius: 15px;
+      padding: 20px;
+      margin-top: 20px;
+      display: none;
+      text-align: left;
+    }
+
+    .selected-panel h4 {
+      color: #ff6b35;
+      font-size: 16px;
+      margin-bottom: 15px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .selected-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .selected-item {
+      background: white;
+      padding: 8px 12px;
+      margin: 5px 0;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #333;
+      border-left: 3px solid #ff6b35;
+      word-wrap: break-word;
+    }
+
+    .grid-container {
+      flex: 1;
+    }
+
     .grid { 
       display: grid; 
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
@@ -112,8 +157,8 @@
     }
 
     .imgBox.selected { 
-      border: 3px solid #667eea;
-      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+      border: 3px solid #ff6b35;
+      box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.2);
     }
 
     .imgBox img { 
@@ -168,7 +213,7 @@
       width: 30px;
       height: 30px;
       border-radius: 50%;
-      background: #667eea;
+      background: #ff6b35;
       color: white;
       display: none;
       align-items: center;
@@ -194,13 +239,63 @@
       display: none;
     }
 
+    /* Success Alert Styles */
+    .success-alert {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      z-index: 2000;
+      display: none;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .success-alert h3 {
+      color: #4caf50;
+      margin-bottom: 15px;
+      font-size: 1.5em;
+    }
+
+    .success-alert p {
+      color: #666;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .success-alert button {
+      background: #4caf50 !important;
+      padding: 10px 25px !important;
+      width: auto !important;
+      min-width: 100px !important;
+      font-size: 14px !important;
+      text-transform: none !important;
+      letter-spacing: 0 !important;
+    }
+
+    .alert-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1999;
+      display: none;
+    }
+
     /* Order Info Styles */
     .order-info {
       margin-bottom: 20px;
       padding: 15px;
-      background: rgba(102, 126, 234, 0.1);
+      background: rgba(255, 107, 53, 0.1);
       border-radius: 10px;
-      border: 2px solid #667eea;
+      border: 2px solid #ff6b35;
       display: none;
     }
 
@@ -212,10 +307,10 @@
     }
 
     .order-info span {
-      color: #667eea;
+      color: #ff6b35;
     }
 
-    /* Modal Styles */
+    /* Enhanced Modal Styles */
     .modal {
       display: none;
       position: fixed;
@@ -224,17 +319,17 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.9);
+      background: rgba(0, 0, 0, 0.95);
       backdrop-filter: blur(5px);
     }
 
     .modal-content {
       position: relative;
-      margin: 5% auto;
+      margin: 2% auto;
       padding: 0;
-      width: 90%;
-      max-width: 800px;
-      max-height: 80vh;
+      width: 95%;
+      max-width: 1000px;
+      height: 90vh;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -242,7 +337,7 @@
 
     .modal img {
       max-width: 100%;
-      max-height: 80vh;
+      max-height: 85vh;
       object-fit: contain;
       border-radius: 10px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -273,6 +368,44 @@
       color: white;
       font-size: 18px;
       font-weight: 500;
+    }
+
+    /* Navigation Buttons */
+    .nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.9) !important;
+      color: #333 !important;
+      border: none !important;
+      border-radius: 50% !important;
+      width: 50px !important;
+      height: 50px !important;
+      font-size: 20px !important;
+      cursor: pointer;
+      z-index: 1002;
+      transition: all 0.3s ease !important;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-transform: none !important;
+      letter-spacing: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .nav-btn:hover {
+      background: white !important;
+      transform: translateY(-50%) scale(1.1) !important;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .prev-btn {
+      left: 20px;
+    }
+
+    .next-btn {
+      right: 20px;
     }
 
     /* Loading Animation */
@@ -341,6 +474,17 @@
         padding: 20px;
       }
 
+      .content-wrapper {
+        flex-direction: column;
+      }
+
+      .selected-panel {
+        flex: none;
+        order: -1;
+        margin-bottom: 20px;
+        margin-top: 0;
+      }
+
       .grid {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: 15px;
@@ -366,6 +510,26 @@
         margin-top: 40px;
         padding: 20px 0;
       }
+
+      .modal-content {
+        width: 98%;
+        height: 95vh;
+        margin: 1% auto;
+      }
+
+      .nav-btn {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 16px !important;
+      }
+
+      .prev-btn {
+        left: 10px;
+      }
+
+      .next-btn {
+        right: 10px;
+      }
     }
   </style>
 </head>
@@ -380,10 +544,28 @@
       <div id="orderInfo" class="order-info">
         <p>Order Number: <span id="orderNumberDisplay"></span></p>
       </div>
-      <div class="grid" id="imagesGrid">Loading images...</div>
+      <div class="content-wrapper">
+        <div class="grid-container">
+          <div class="grid" id="imagesGrid">Loading images...</div>
+        </div>
+        <div id="selectedPanel" class="selected-panel">
+          <h4>📋 Selected Photos</h4>
+          <div id="selectedList" class="selected-list">
+            <p style="color: #999; font-style: italic; text-align: center;">No photos selected</p>
+          </div>
+        </div>
+      </div>
       <button onclick="submitSelection()" title="Send your photo selection to Cholee for printing">Order Selected Photos</button>
       <div id="msg"></div>
     </div>
+  </div>
+
+  <!-- Success Alert -->
+  <div class="alert-overlay" id="alertOverlay"></div>
+  <div class="success-alert" id="successAlert">
+    <h3>✅ Order Submitted!</h3>
+    <p>Your photo selection has been sent successfully. Check your email for confirmation details.</p>
+    <button onclick="closeSuccessAlert()">OK</button>
   </div>
 
   <!-- Footer -->
@@ -399,10 +581,12 @@
     </div>
   </div>
 
-  <!-- Modal for viewing large images -->
+  <!-- Enhanced Modal for viewing large images -->
   <div id="imageModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
+      <button class="nav-btn prev-btn" id="prevBtn" onclick="navigateImage(-1)">‹</button>
+      <button class="nav-btn next-btn" id="nextBtn" onclick="navigateImage(1)">›</button>
       <img id="modalImage" src="" alt="">
       <div class="modal-info" id="modalInfo"></div>
     </div>
@@ -413,6 +597,8 @@
     let userEmail = "";
     let selectedImages = [];
     let orderNumber = "";
+    let allImages = [];
+    let currentImageIndex = 0;
 
     function startSelection() {
       userEmail = document.getElementById("email").value.trim();
@@ -445,6 +631,7 @@
           document.getElementById("orderNumberDisplay").textContent = orderNumber;
           document.getElementById("orderInfo").style.display = "block";
           
+          allImages = data.images;
           const grid = document.getElementById("imagesGrid");
           grid.innerHTML = "";
           
@@ -495,6 +682,22 @@
         box.classList.add("selected");
         selectedImages.push(name);
       }
+      updateSelectedPanel();
+    }
+
+    function updateSelectedPanel() {
+      const panel = document.getElementById("selectedPanel");
+      const list = document.getElementById("selectedList");
+      
+      if (selectedImages.length > 0) {
+        panel.style.display = "block";
+        list.innerHTML = selectedImages.map(name => 
+          `<div class="selected-item">${name}</div>`
+        ).join('');
+      } else {
+        panel.style.display = "none";
+        list.innerHTML = '<p style="color: #999; font-style: italic; text-align: center;">No photos selected</p>';
+      }
     }
 
     function submitSelection() {
@@ -513,15 +716,28 @@
       })
       .then(res => res.json())
       .then(data => {
-        document.getElementById("msg").textContent = data.message;
-        document.getElementById("msg").style.display = "block";
-        
-        // Reset all selections after successful submission
+        // Show success alert instead of inline message
         if (data.status === "success") {
+          showSuccessAlert();
           resetAllSelections();
+        } else {
+          document.getElementById("msg").textContent = data.message;
+          document.getElementById("msg").style.display = "block";
         }
       })
       .catch(err => console.error(err));
+    }
+
+    function showSuccessAlert() {
+      document.getElementById("alertOverlay").style.display = "block";
+      document.getElementById("successAlert").style.display = "block";
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeSuccessAlert() {
+      document.getElementById("alertOverlay").style.display = "none";
+      document.getElementById("successAlert").style.display = "none";
+      document.body.style.overflow = "auto";
     }
 
     function resetAllSelections() {
@@ -539,6 +755,9 @@
       // Hide order info
       document.getElementById("orderInfo").style.display = "none";
       
+      // Hide selected panel
+      document.getElementById("selectedPanel").style.display = "none";
+      
       // Clear the email input
       document.getElementById("email").value = "";
       
@@ -546,16 +765,54 @@
       document.getElementById("imagesGrid").innerHTML = "Loading your edited photos...";
     }
 
-    // Modal functionality
+    // Enhanced modal functionality with navigation
     function viewImage(url, name) {
+      // Find current image index
+      currentImageIndex = allImages.findIndex(img => img.url === url);
+      
       const modal = document.getElementById("imageModal");
       const modalImg = document.getElementById("modalImage");
       const modalInfo = document.getElementById("modalInfo");
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
       
       modalImg.src = url;
       modalInfo.textContent = name;
       modal.style.display = "block";
       document.body.style.overflow = "hidden";
+      
+      // Show navigation buttons if there are multiple images
+      if (allImages.length > 1) {
+        prevBtn.style.display = "flex";
+        nextBtn.style.display = "flex";
+        updateNavigationButtons();
+      }
+    }
+
+    function navigateImage(direction) {
+      currentImageIndex += direction;
+      
+      // Wrap around
+      if (currentImageIndex >= allImages.length) {
+        currentImageIndex = 0;
+      } else if (currentImageIndex < 0) {
+        currentImageIndex = allImages.length - 1;
+      }
+      
+      const currentImage = allImages[currentImageIndex];
+      document.getElementById("modalImage").src = currentImage.url;
+      document.getElementById("modalInfo").textContent = currentImage.name;
+      
+      updateNavigationButtons();
+    }
+
+    function updateNavigationButtons() {
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      
+      // Always show buttons for navigation, but you could disable them if needed
+      prevBtn.style.opacity = allImages.length > 1 ? "1" : "0.5";
+      nextBtn.style.opacity = allImages.length > 1 ? "1" : "0.5";
     }
 
     // Close modal functionality
@@ -566,21 +823,36 @@
       closeBtn.onclick = function() {
         modal.style.display = "none";
         document.body.style.overflow = "auto";
+        document.getElementById("prevBtn").style.display = "none";
+        document.getElementById("nextBtn").style.display = "none";
       }
 
       window.onclick = function(event) {
         if (event.target === modal) {
           modal.style.display = "none";
           document.body.style.overflow = "auto";
+          document.getElementById("prevBtn").style.display = "none";
+          document.getElementById("nextBtn").style.display = "none";
         }
       }
 
       document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape' && modal.style.display === "block") {
-          modal.style.display = "none";
-          document.body.style.overflow = "auto";
+        if (modal.style.display === "block") {
+          if (event.key === 'Escape') {
+            modal.style.display = "none";
+            document.body.style.overflow = "auto";
+            document.getElementById("prevBtn").style.display = "none";
+            document.getElementById("nextBtn").style.display = "none";
+          } else if (event.key === 'ArrowLeft') {
+            navigateImage(-1);
+          } else if (event.key === 'ArrowRight') {
+            navigateImage(1);
+          }
         }
       });
+
+      // Close success alert with overlay click
+      document.getElementById("alertOverlay").onclick = closeSuccessAlert;
     });
   </script>
 </body>
