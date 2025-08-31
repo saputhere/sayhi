@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Select Images</title>
+  <title>Customers Gallery</title>
   <style>
     * {
       margin: 0;
@@ -191,6 +191,7 @@
       background: rgba(76, 175, 80, 0.1);
       border: 2px solid #4caf50;
       font-size: 16px;
+      display: none;
     }
 
     /* Modal Styles */
@@ -276,13 +277,40 @@
     }
 
     /* Footer Styles */
-    footer {
+    .footer {
+      margin-top: 60px;
+      padding: 30px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
       text-align: center;
-      margin-top: 40px;
-      padding: 20px;
-      color: rgba(255, 255, 255, 0.8);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .footer-content {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .footer h3 {
+      color: white;
+      font-size: 1.8em;
+      font-weight: 600;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .footer p {
       font-size: 14px;
-      font-weight: 500;
+      line-height: 1.6;
+      margin: 8px 0;
+      opacity: 0.9;
+    }
+
+    .footer .copyright {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 12px;
+      opacity: 0.7;
     }
 
     /* Mobile Responsive */
@@ -308,21 +336,42 @@
       input, button {
         width: 90%;
       }
+
+      .footer h3 {
+        font-size: 1.5em;
+      }
+
+      .footer {
+        margin-top: 40px;
+        padding: 20px 0;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>📸 Cholee Photo GalleryX</h2>
+    <h2>Cholee Photo Gallery</h2>
     <p style="color: #666; font-size: 16px; margin-bottom: 25px;">Select your favorite edited photos for printing</p>
     <input type="email" id="email" placeholder="Enter your email address" required title="We'll send your selection confirmation to this email">
     <button onclick="startSelection()" title="Start browsing your edited photos">View My Photos</button>
     <div id="imagesSection" style="display:none;">
       <h3>🖨️ Choose Photos to Print</h3>
       <div class="grid" id="imagesGrid">Loading images...</div>
-      <button onclick="submitSelection()" title="Send your photo selection to Cholee for printing">📤 Order Selected Photos</button>
+      <button onclick="submitSelection()" title="Send your photo selection to Cholee for printing">Order Selected Photos</button>
+      <div id="msg"></div>
     </div>
-    <div id="msg"></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-content">
+      <h3>Cholee Studio</h3>
+      <p>Enhancing your memories with professional editing and printing</p>
+      <p>Creating beautiful moments that last a lifetime</p>
+      <div class="copyright">
+        <p>© 2025 Cholee Studio - Creative Design & Printing. All rights reserved.</p>
+      </div>
+    </div>
   </div>
 
   <!-- Modal for viewing large images -->
@@ -501,4 +550,3 @@
   </script>
 </body>
 </html>
-
